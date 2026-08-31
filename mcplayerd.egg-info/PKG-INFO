@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: mcplayerd
+Version: 0.1.0.dev0
+Summary: Application and control daemon for McPlayer.
+License: MIT
+Requires-Python: >=3.11
+License-File: LICENSE
+Requires-Dist: python-mpd2<4,>=3.0.3
+Dynamic: license-file

@@ -8,10 +8,9 @@ version = "0.1.0.dev0"
 description = "Application and control daemon for McPlayer."
 requires-python = ">=3.11"
 license = { text = "MIT" }
-
-[tool.setuptools.packages.find]
-include = ["mcplayerd*"]
-
 dependencies = [
     "python-mpd2>=3.0.3,<4"
 ]
+
+[tool.setuptools.packages.find]
+include = ["mcplayerd*"]

@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+mcplayerd/__init__.py
+mcplayerd/__main__.py
+mcplayerd/daemon.py
+mcplayerd/mpd_client.py
+mcplayerd.egg-info/PKG-INFO
+mcplayerd.egg-info/SOURCES.txt
+mcplayerd.egg-info/dependency_links.txt
+mcplayerd.egg-info/requires.txt
+mcplayerd.egg-info/top_level.txt
