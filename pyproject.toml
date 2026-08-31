@@ -11,3 +11,7 @@ license = { text = "MIT" }
 
 [tool.setuptools.packages.find]
 include = ["mcplayerd*"]
+
+dependencies = [
+    "python-mpd2>=3.0.3,<4"
+]
