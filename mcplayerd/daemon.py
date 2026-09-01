@@ -4,8 +4,8 @@ import time
 
 from mcplayerd import __version__
 from mcplayerd.mpd_client import McPlayerMPDClient
+from mcplayerd.network_manager import NetworkManagerStatus
 from mcplayerd.state_writer import STATE_PATH, write_state
-
 
 RECONNECT_DELAY = 5
 
@@ -43,6 +43,16 @@ def run() -> None:
     """Run McPlayerD continuously."""
     print("McPlayerD starting", flush=True)
     print(f"McPlayerD version {__version__}", flush=True)
+
+    network_manager = NetworkManagerStatus()
+    print(
+        f"NetworkManager available: {network_manager.is_available()}",
+        flush=True,
+    )
+    print(
+        f"NetworkManager running: {network_manager.is_running()}",
+        flush=True,
+    )
 
     while True:
         mpd = McPlayerMPDClient()
