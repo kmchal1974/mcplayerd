@@ -28,3 +28,11 @@ class McPlayerMPDClient:
             self.client.close()
         finally:
             self.client.disconnect()
+
+    def get_status(self) -> dict:
+        """Return the current MPD playback status."""
+        return self.client.status()
+
+    def get_current_song(self) -> dict:
+        """Return metadata for the current song."""
+        return self.client.currentsong()
