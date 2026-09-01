@@ -105,3 +105,81 @@ class NetworkManagerStatus:
                 return line[4:] or None
 
         return None
+
+    def get_wifi_device(self) -> str | None:
+        """Return the NetworkManager Wi-Fi device name."""
+        if not self.nmcli_path:
+            return None
+
+        env = os.environ.copy()
+        env["LC_ALL"] = "C"
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "-t",
+                "-f",
+                "DEVICE,TYPE",
+                "device",
+                "status",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            env=env,
+            check=False,
+        )
+
+        if result.returncode != 0:
+            return None
+
+        for line in result.stdout.splitlines():
+            try:
+                device, device_type = line.rsplit(":", 1)
+            except ValueError:
+                continue
+
+            if device_type == "wifi":
+                return device
+
+        return None
+
+    def get_wifi_device_state(self) -> str | None:
+        """Return the NetworkManager state of the Wi-Fi device."""
+        if not self.nmcli_path:
+            return None
+
+        env = os.environ.copy()
+        env["LC_ALL"] = "C"
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "-t",
+                "-f",
+                "DEVICE,TYPE,STATE",
+                "device",
+                "status",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            env=env,
+            check=False,
+        )
+
+        if result.returncode != 0:
+            return None
+
+        for line in result.stdout.splitlines():
+            parts = line.rsplit(":", 2)
+
+            if len(parts) != 3:
+                continue
+
+            device, device_type, state = parts
+
+            if device_type == "wifi":
+                return state
+
+        return None

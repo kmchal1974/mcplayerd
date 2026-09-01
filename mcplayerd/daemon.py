@@ -63,6 +63,15 @@ def run() -> None:
         f"{network_manager.get_active_wifi_ssid()}",
         flush=True,
     )
+    print(
+        f"Wi-Fi device: {network_manager.get_wifi_device()}",
+        flush=True,
+    )
+    print(
+        f"Wi-Fi device state: "
+        f"{network_manager.get_wifi_device_state()}",
+        flush=True,
+    )
 
     while True:
         mpd = McPlayerMPDClient()
