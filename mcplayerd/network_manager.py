@@ -34,6 +34,22 @@ class NetworkManagerStatus:
 
         return result.returncode == 0 and result.stdout.strip() == "running"
 
+    def has_usable_wifi(self, hotspot_connection: str = "McPlayer-AP") -> bool:
+        """Return True when connected to a normal Wi-Fi network."""
+        if not self.is_running():
+            return False
+
+        connection = self.get_active_wifi_connection()
+        state = self.get_wifi_device_state()
+
+        if connection is None:
+            return False
+
+        if connection == hotspot_connection:
+            return False
+
+        return state == "connected"
+
     def get_known_wifi_connections(self) -> list[str]:
         """Return saved NetworkManager Wi-Fi connection names."""
         if not self.nmcli_path:

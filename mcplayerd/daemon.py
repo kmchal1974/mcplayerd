@@ -68,6 +68,10 @@ def run() -> None:
         flush=True,
     )
     print(
+        f"Usable Wi-Fi: {network_manager.has_usable_wifi()}",
+        flush=True,
+    )
+    print(
         f"Wi-Fi device: {network_manager.get_wifi_device()}",
         flush=True,
     )
