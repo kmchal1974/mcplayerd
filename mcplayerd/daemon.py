@@ -14,7 +14,6 @@ def build_state(mpd: McPlayerMPDClient) -> dict:
     """Build a clean McPlayerD state snapshot."""
     status = mpd.get_status()
     song = mpd.get_current_song()
-
     volume = status.get("volume")
 
     return {
@@ -64,6 +63,11 @@ def run() -> None:
         flush=True,
     )
     print(
+        f"Known Wi-Fi connections: "
+        f"{network_manager.get_known_wifi_connections()}",
+        flush=True,
+    )
+    print(
         f"Wi-Fi device: {network_manager.get_wifi_device()}",
         flush=True,
     )
@@ -75,11 +79,9 @@ def run() -> None:
 
     while True:
         mpd = McPlayerMPDClient()
-
         try:
             mpd.connect()
             print("Connected to MPD", flush=True)
-
             update_state(mpd)
 
             while True:
@@ -93,7 +95,6 @@ def run() -> None:
         except KeyboardInterrupt:
             print("McPlayerD stopped", flush=True)
             return
-
         except Exception as exc:
             print(f"MPD connection error: {exc}", flush=True)
             print(
@@ -101,7 +102,6 @@ def run() -> None:
                 flush=True,
             )
             time.sleep(RECONNECT_DELAY)
-
         finally:
             try:
                 mpd.disconnect()

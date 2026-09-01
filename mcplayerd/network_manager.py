@@ -34,6 +34,46 @@ class NetworkManagerStatus:
 
         return result.returncode == 0 and result.stdout.strip() == "running"
 
+    def get_known_wifi_connections(self) -> list[str]:
+        """Return saved NetworkManager Wi-Fi connection names."""
+        if not self.nmcli_path:
+            return []
+
+        env = os.environ.copy()
+        env["LC_ALL"] = "C"
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "-t",
+                "-f",
+                "NAME,TYPE",
+                "connection",
+                "show",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            env=env,
+            check=False,
+        )
+
+        if result.returncode != 0:
+            return []
+
+        connections: list[str] = []
+
+        for line in result.stdout.splitlines():
+            try:
+                name, connection_type = line.rsplit(":", 1)
+            except ValueError:
+                continue
+
+            if connection_type == "802-11-wireless":
+                connections.append(name)
+
+        return connections
+
     def get_active_wifi_connection(self) -> str | None:
         """Return the active NetworkManager Wi-Fi connection name."""
         if not self.nmcli_path:
