@@ -1,0 +1,21 @@
+[Unit]
+Description=McPlayerD Music Player Daemon
+After=mpd.service
+Wants=mpd.service
+
+[Service]
+Type=simple
+User=kmchale1974
+Group=kmchale1974
+
+WorkingDirectory=/home/kmchale1974/mcplayerd
+ExecStart=/home/kmchale1974/mcplayerd/.venv/bin/python -m mcplayerd
+
+RuntimeDirectory=mcplayer
+RuntimeDirectoryMode=0755
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
