@@ -1,8 +1,13 @@
 """Core McPlayerD daemon application."""
 
+import time
+
 from mcplayerd import __version__
 from mcplayerd.mpd_client import McPlayerMPDClient
 from mcplayerd.state_writer import STATE_PATH, write_state
+
+
+RECONNECT_DELAY = 5
 
 
 def build_state(mpd: McPlayerMPDClient) -> dict:
@@ -27,27 +32,49 @@ def build_state(mpd: McPlayerMPDClient) -> dict:
     }
 
 
+def update_state(mpd: McPlayerMPDClient) -> None:
+    """Read MPD and write the latest McPlayerD state."""
+    state = build_state(mpd)
+    write_state(state)
+    print(f"State updated: {STATE_PATH}", flush=True)
+
+
 def run() -> None:
-    """Start McPlayerD and write the current MPD state."""
-    print("McPlayerD starting")
-    print(f"McPlayerD version {__version__}")
+    """Run McPlayerD continuously."""
+    print("McPlayerD starting", flush=True)
+    print(f"McPlayerD version {__version__}", flush=True)
 
-    mpd = McPlayerMPDClient()
+    while True:
+        mpd = McPlayerMPDClient()
 
-    try:
-        mpd.connect()
-        print("Connected to MPD")
-
-        state = build_state(mpd)
-        write_state(state)
-
-        print(f"State written to {STATE_PATH}")
-
-    except Exception as exc:
-        print(f"McPlayerD error: {exc}")
-
-    finally:
         try:
-            mpd.disconnect()
-        except Exception:
-            pass
+            mpd.connect()
+            print("Connected to MPD", flush=True)
+
+            update_state(mpd)
+
+            while True:
+                changes = mpd.wait_for_change()
+                print(
+                    f"MPD change detected: {', '.join(changes)}",
+                    flush=True,
+                )
+                update_state(mpd)
+
+        except KeyboardInterrupt:
+            print("McPlayerD stopped", flush=True)
+            return
+
+        except Exception as exc:
+            print(f"MPD connection error: {exc}", flush=True)
+            print(
+                f"Retrying in {RECONNECT_DELAY} seconds",
+                flush=True,
+            )
+            time.sleep(RECONNECT_DELAY)
+
+        finally:
+            try:
+                mpd.disconnect()
+            except Exception:
+                pass
