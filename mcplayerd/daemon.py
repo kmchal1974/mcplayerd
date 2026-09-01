@@ -2,27 +2,33 @@
 
 from mcplayerd import __version__
 from mcplayerd.mpd_client import McPlayerMPDClient
+from mcplayerd.state_writer import STATE_PATH, write_state
 
 
-def print_state(mpd: McPlayerMPDClient) -> None:
-    """Print the current MPD playback state."""
+def build_state(mpd: McPlayerMPDClient) -> dict:
+    """Build a clean McPlayerD state snapshot."""
     status = mpd.get_status()
     song = mpd.get_current_song()
 
-    print(f"Playback state: {status.get('state', 'unknown')}")
-    print(f"Volume: {status.get('volume', 'unknown')}")
+    volume = status.get("volume")
 
-    if song:
-        print(f"Artist: {song.get('artist', 'unknown')}")
-        print(f"Album: {song.get('album', 'unknown')}")
-        print(f"Title: {song.get('title', 'unknown')}")
-        print(f"File: {song.get('file', 'unknown')}")
-    else:
-        print("Current song: none")
+    return {
+        "version": __version__,
+        "playback": {
+            "state": status.get("state", "unknown"),
+            "volume": int(volume) if volume is not None else None,
+        },
+        "song": {
+            "artist": song.get("artist") if song else None,
+            "album": song.get("album") if song else None,
+            "title": song.get("title") if song else None,
+            "file": song.get("file") if song else None,
+        },
+    }
 
 
 def run() -> None:
-    """Start McPlayerD and wait for one MPD change."""
+    """Start McPlayerD and write the current MPD state."""
     print("McPlayerD starting")
     print(f"McPlayerD version {__version__}")
 
@@ -32,23 +38,13 @@ def run() -> None:
         mpd.connect()
         print("Connected to MPD")
 
-        print("\nCurrent state:")
-        print_state(mpd)
+        state = build_state(mpd)
+        write_state(state)
 
-        print("\nWaiting for MPD change...")
-
-        changes = mpd.wait_for_change()
-
-        print(f"Change detected: {', '.join(changes)}")
-
-        print("\nUpdated state:")
-        print_state(mpd)
-
-    except KeyboardInterrupt:
-        print("\nMcPlayerD stopped")
+        print(f"State written to {STATE_PATH}")
 
     except Exception as exc:
-        print(f"MPD error: {exc}")
+        print(f"McPlayerD error: {exc}")
 
     finally:
         try:
