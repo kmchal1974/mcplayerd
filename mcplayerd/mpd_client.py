@@ -36,3 +36,7 @@ class McPlayerMPDClient:
     def get_current_song(self) -> dict:
         """Return metadata for the current song."""
         return self.client.currentsong()
+
+    def wait_for_change(self) -> list[str]:
+        """Wait for an MPD player or playlist change."""
+        return self.client.idle("player", "playlist")
