@@ -11,24 +11,78 @@ from mcplayerd.state_writer import STATE_PATH, write_state
 RECONNECT_DELAY = 5
 NETWORK_CHECK_INTERVAL = 5
 FALLBACK_AP_DELAY = 30
+PREFERRED_WIFI_CHECK_INTERVAL = 30
+WIFI_SWITCH_COOLDOWN = 60
 
-
-def wait_for_network_fallback(network_manager: NetworkManagerStatus) -> None:
-    """Start the fallback AP after sustained loss of usable Wi-Fi."""
+def wait_for_network_fallback(
+    network_manager: NetworkManagerStatus,
+) -> None:
+    """Manage preferred Wi-Fi selection and fallback AP activation."""
     disconnected_since: float | None = None
+    last_preferred_check = 0.0
+    last_wifi_switch = 0.0
 
     while True:
+        now = time.monotonic()
+
         if network_manager.has_usable_wifi():
             disconnected_since = None
+
+            # Periodically see whether another saved Wi-Fi network
+            # is meaningfully stronger than the current connection.
+            if (
+                now - last_preferred_check
+                >= PREFERRED_WIFI_CHECK_INTERVAL
+                and now - last_wifi_switch >= WIFI_SWITCH_COOLDOWN
+            ):
+                last_preferred_check = now
+
+                active_connection = (
+                    network_manager.get_active_wifi_connection()
+                )
+                preferred_connection = (
+                    network_manager.get_preferred_wifi_connection()
+                )
+
+                if (
+                    active_connection is not None
+                    and preferred_connection is not None
+                    and preferred_connection != active_connection
+                ):
+                    print(
+                        "Switching Wi-Fi: "
+                        f"{active_connection} -> "
+                        f"{preferred_connection}",
+                        flush=True,
+                    )
+
+                    if network_manager.activate_wifi_connection(
+                        preferred_connection
+                    ):
+                        last_wifi_switch = time.monotonic()
+
+                        print(
+                            "Wi-Fi switch successful: "
+                            f"{preferred_connection}",
+                            flush=True,
+                        )
+                    else:
+                        print(
+                            "Wi-Fi switch failed: "
+                            f"{preferred_connection}",
+                            flush=True,
+                        )
+
         elif network_manager.should_start_fallback_ap():
             if disconnected_since is None:
-                disconnected_since = time.monotonic()
+                disconnected_since = now
+
                 print(
                     "Usable Wi-Fi lost; fallback timer started",
                     flush=True,
                 )
 
-            elapsed = time.monotonic() - disconnected_since
+            elapsed = now - disconnected_since
 
             if elapsed >= FALLBACK_AP_DELAY:
                 print(
