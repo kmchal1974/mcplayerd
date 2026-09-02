@@ -74,6 +74,38 @@ class NetworkManagerStatus:
 
         return False
 
+    def start_fallback_ap(
+        self,
+        hotspot_connection: str = "McPlayer-AP",
+    ) -> bool:
+        """Activate the existing fallback access-point profile."""
+        if not self.nmcli_path:
+            return False
+
+        env = os.environ.copy()
+        env["LC_ALL"] = "C"
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "--wait",
+                "15",
+                "connection",
+                "up",
+                "id",
+                hotspot_connection,
+                "ifname",
+                "wlan0",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            env=env,
+            check=False,
+        )
+
+        return result.returncode == 0
+
     def get_known_wifi_connections(self) -> list[str]:
         """Return saved NetworkManager Wi-Fi connection names."""
         if not self.nmcli_path:
