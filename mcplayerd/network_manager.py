@@ -450,74 +450,74 @@ class NetworkManagerStatus:
             return best_network["connection"]
         return active_connection
 
-def get_preferred_wifi_connection(
-    self,
-    hotspot_connection: str = "McPlayer-AP",
-    switch_margin: int = 15,
-) -> str | None:
-    """Return the preferred saved Wi-Fi connection based on signal strength."""
-    networks = self.get_known_wifi_signals(hotspot_connection)
+    def get_preferred_wifi_connection(
+        self,
+        hotspot_connection: str = "McPlayer-AP",
+        switch_margin: int = 15,
+    ) -> str | None:
+        """Return the preferred saved Wi-Fi connection based on signal strength."""
+        networks = self.get_known_wifi_signals(hotspot_connection)
 
-    if not networks:
-        return None
+        if not networks:
+            return None
 
-    active_connection = self.get_active_wifi_connection()
+        active_connection = self.get_active_wifi_connection()
 
-    if active_connection is None or active_connection == hotspot_connection:
-        return networks[0]["connection"]
+        if active_connection is None or active_connection == hotspot_connection:
+            return networks[0]["connection"]
 
-    current_network = next(
-        (
-            network
-            for network in networks
-            if network["connection"] == active_connection
-        ),
-        None,
-    )
+        current_network = next(
+            (
+                network
+                for network in networks
+                if network["connection"] == active_connection
+            ),
+            None,
+        )
 
-    best_network = networks[0]
+        best_network = networks[0]
 
-    if current_network is None:
-        return best_network["connection"]
+        if current_network is None:
+            return best_network["connection"]
 
-    if best_network["connection"] == active_connection:
+        if best_network["connection"] == active_connection:
+            return active_connection
+
+        if best_network["signal"] >= current_network["signal"] + switch_margin:
+            return best_network["connection"]
+
         return active_connection
 
-    if best_network["signal"] >= current_network["signal"] + switch_margin:
-        return best_network["connection"]
+    def activate_wifi_connection(
+        self,
+        connection_name: str,
+    ) -> bool:
+        """Activate a saved Wi-Fi connection on the Wi-Fi device."""
+        if not self.nmcli_path:
+            return False
 
-    return active_connection
+        wifi_device = self.get_wifi_device()
 
-def activate_wifi_connection(
-    self,
-    connection_name: str,
-) -> bool:
-    """Activate a saved Wi-Fi connection on the Wi-Fi device."""
-    if not self.nmcli_path:
-        return False
+        if wifi_device is None:
+            return False
 
-    wifi_device = self.get_wifi_device()
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "--wait",
+                "20",
+                "connection",
+                "up",
+                "id",
+                connection_name,
+                "ifname",
+                wifi_device,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=25,
+            env=self._environment(),
+            check=False,
+        )
 
-    if wifi_device is None:
-        return False
-
-    result = subprocess.run(
-        [
-            self.nmcli_path,
-            "--wait",
-            "20",
-            "connection",
-            "up",
-            "id",
-            connection_name,
-            "ifname",
-            wifi_device,
-        ],
-        capture_output=True,
-        text=True,
-        timeout=25,
-        env=self._environment(),
-        check=False,
-    )
-
-    return result.returncode == 0
+        return result.returncode == 0
