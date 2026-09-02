@@ -136,7 +136,11 @@ def run() -> None:
         f"{network_manager.should_start_fallback_ap()}",
         flush=True,
     )
-
+    print(
+        f"Visible known Wi-Fi: "
+        f"{network_manager.get_known_wifi_signals()}",
+        flush=True,
+    )
     while True:
         mpd = McPlayerMPDClient()
         try:
