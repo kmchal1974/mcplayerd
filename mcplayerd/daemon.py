@@ -141,6 +141,11 @@ def run() -> None:
         f"{network_manager.get_known_wifi_signals()}",
         flush=True,
     )
+    print(
+        f"Preferred Wi-Fi connection: "
+        f"{network_manager.get_preferred_wifi_connection()}",
+        flush=True,
+    )
     while True:
         mpd = McPlayerMPDClient()
         try:
