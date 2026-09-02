@@ -111,3 +111,4 @@ def run() -> None:
                 mpd.disconnect()
             except Exception:
                 pass
+            

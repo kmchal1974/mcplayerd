@@ -36,3 +36,14 @@ Phase 1
 - [x] Recover automatically after reboot
 
 **Milestone:** v0.1.0 — Daemon Foundation
+
+### Network Observation
+
+- [x] Detect NetworkManager availability
+- [x] Read active Wi-Fi connection
+- [x] Read active Wi-Fi SSID
+- [x] Read Wi-Fi device and state
+- [x] Read saved Wi-Fi connections
+- [x] Detect usable normal Wi-Fi connection
+
+**Milestone:** v0.2.0 — Network Observation
