@@ -487,3 +487,37 @@ def get_preferred_wifi_connection(
         return best_network["connection"]
 
     return active_connection
+
+def activate_wifi_connection(
+    self,
+    connection_name: str,
+) -> bool:
+    """Activate a saved Wi-Fi connection on the Wi-Fi device."""
+    if not self.nmcli_path:
+        return False
+
+    wifi_device = self.get_wifi_device()
+
+    if wifi_device is None:
+        return False
+
+    result = subprocess.run(
+        [
+            self.nmcli_path,
+            "--wait",
+            "20",
+            "connection",
+            "up",
+            "id",
+            connection_name,
+            "ifname",
+            wifi_device,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=25,
+        env=self._environment(),
+        check=False,
+    )
+
+    return result.returncode == 0
