@@ -449,3 +449,41 @@ class NetworkManagerStatus:
         if best_network["signal"] >= current_network["signal"] + switch_margin:
             return best_network["connection"]
         return active_connection
+
+def get_preferred_wifi_connection(
+    self,
+    hotspot_connection: str = "McPlayer-AP",
+    switch_margin: int = 15,
+) -> str | None:
+    """Return the preferred saved Wi-Fi connection based on signal strength."""
+    networks = self.get_known_wifi_signals(hotspot_connection)
+
+    if not networks:
+        return None
+
+    active_connection = self.get_active_wifi_connection()
+
+    if active_connection is None or active_connection == hotspot_connection:
+        return networks[0]["connection"]
+
+    current_network = next(
+        (
+            network
+            for network in networks
+            if network["connection"] == active_connection
+        ),
+        None,
+    )
+
+    best_network = networks[0]
+
+    if current_network is None:
+        return best_network["connection"]
+
+    if best_network["connection"] == active_connection:
+        return active_connection
+
+    if best_network["signal"] >= current_network["signal"] + switch_margin:
+        return best_network["connection"]
+
+    return active_connection
