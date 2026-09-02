@@ -1,3 +1,7 @@
+✓ 3D-E Automatic preferred-network switching
+
+- Added automatic switching to the preferred saved Wi-Fi network when another known network is at least 15 signal points stronger.
+
 ## v0.2.0 — Network Observation
 
 Added read-only NetworkManager awareness to McPlayerD.

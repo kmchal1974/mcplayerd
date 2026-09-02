@@ -47,3 +47,5 @@ Phase 1
 - [x] Detect usable normal Wi-Fi connection
 
 **Milestone:** v0.2.0 — Network Observation
+
+✓ 3D-E Automatic preferred-network switching
