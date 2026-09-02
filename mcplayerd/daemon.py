@@ -1,5 +1,6 @@
 """Core McPlayerD daemon application."""
 
+import threading
 import time
 
 from mcplayerd import __version__
@@ -8,6 +9,47 @@ from mcplayerd.network_manager import NetworkManagerStatus
 from mcplayerd.state_writer import STATE_PATH, write_state
 
 RECONNECT_DELAY = 5
+NETWORK_CHECK_INTERVAL = 5
+FALLBACK_AP_DELAY = 30
+
+
+def wait_for_network_fallback(network_manager: NetworkManagerStatus) -> None:
+    """Start the fallback AP after sustained loss of usable Wi-Fi."""
+    disconnected_since: float | None = None
+
+    while True:
+        if network_manager.has_usable_wifi():
+            disconnected_since = None
+        elif network_manager.should_start_fallback_ap():
+            if disconnected_since is None:
+                disconnected_since = time.monotonic()
+                print(
+                    "Usable Wi-Fi lost; fallback timer started",
+                    flush=True,
+                )
+
+            elapsed = time.monotonic() - disconnected_since
+
+            if elapsed >= FALLBACK_AP_DELAY:
+                print(
+                    "Starting fallback access point",
+                    flush=True,
+                )
+
+                if network_manager.start_fallback_ap():
+                    print(
+                        "Fallback access point started",
+                        flush=True,
+                    )
+                else:
+                    print(
+                        "Fallback access point failed to start",
+                        flush=True,
+                    )
+
+                return
+
+        time.sleep(NETWORK_CHECK_INTERVAL)
 
 
 def build_state(mpd: McPlayerMPDClient) -> dict:
@@ -44,6 +86,15 @@ def run() -> None:
     print(f"McPlayerD version {__version__}", flush=True)
 
     network_manager = NetworkManagerStatus()
+
+    network_thread = threading.Thread(
+        target=wait_for_network_fallback,
+        args=(network_manager,),
+        daemon=True,
+        name="network-fallback",
+    )
+    network_thread.start()
+
     print(
         f"NetworkManager available: {network_manager.is_available()}",
         flush=True,
