@@ -50,6 +50,30 @@ class NetworkManagerStatus:
 
         return state == "connected"
 
+    def should_start_fallback_ap(
+        self,
+        hotspot_connection: str = "McPlayer-AP",
+    ) -> bool:
+        """Return True when McPlayer should use its fallback access point."""
+        if not self.is_available():
+            return False
+        if not self.is_running():
+            return False
+
+        active_connection = self.get_active_wifi_connection()
+        wifi_state = self.get_wifi_device_state()
+
+        if active_connection == hotspot_connection:
+            return False
+        if active_connection is None:
+            return True
+        if wifi_state != "connected":
+            return True
+        if not self.has_usable_wifi(hotspot_connection):
+            return True
+
+        return False
+
     def get_known_wifi_connections(self) -> list[str]:
         """Return saved NetworkManager Wi-Fi connection names."""
         if not self.nmcli_path:

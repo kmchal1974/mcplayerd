@@ -80,6 +80,11 @@ def run() -> None:
         f"{network_manager.get_wifi_device_state()}",
         flush=True,
     )
+    print(
+        f"Fallback AP needed: "
+        f"{network_manager.should_start_fallback_ap()}",
+        flush=True,
+    )
 
     while True:
         mpd = McPlayerMPDClient()
@@ -111,4 +116,3 @@ def run() -> None:
                 mpd.disconnect()
             except Exception:
                 pass
-            
