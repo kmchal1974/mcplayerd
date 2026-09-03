@@ -521,3 +521,19 @@ class NetworkManagerStatus:
         )
 
         return result.returncode == 0
+
+    def try_saved_wifi_connections(
+        self,
+        hotspot_connection: str = "McPlayer-AP",
+    ) -> str | None:
+        """Try saved normal Wi-Fi profiles and return the first that connects."""
+        connections = self.get_known_wifi_connections()
+
+        for connection in connections:
+            if connection == hotspot_connection:
+                continue
+
+            if self.activate_wifi_connection(connection):
+                return connection
+
+        return None

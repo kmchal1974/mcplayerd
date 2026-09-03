@@ -13,6 +13,7 @@ NETWORK_CHECK_INTERVAL = 5
 FALLBACK_AP_DELAY = 30
 PREFERRED_WIFI_CHECK_INTERVAL = 30
 WIFI_SWITCH_COOLDOWN = 60
+AP_RECOVERY_CHECK_INTERVAL = 60
 
 def wait_for_network_fallback(
     network_manager: NetworkManagerStatus,
@@ -95,13 +96,50 @@ def wait_for_network_fallback(
                         "Fallback access point started",
                         flush=True,
                     )
+
+                    while True:
+                        time.sleep(AP_RECOVERY_CHECK_INTERVAL)
+
+                        print(
+                            "Checking for saved Wi-Fi networks",
+                            flush=True,
+                        )
+
+                        recovered_connection = (
+                            network_manager.try_saved_wifi_connections()
+                        )
+
+                        if recovered_connection is not None:
+                            print(
+                                "Recovered normal Wi-Fi: "
+                                f"{recovered_connection}",
+                                flush=True,
+                            )
+
+                            disconnected_since = None
+                            last_wifi_switch = time.monotonic()
+                            break
+
+                        print(
+                            "No saved Wi-Fi available; restoring fallback AP",
+                            flush=True,
+                        )
+
+                        if network_manager.start_fallback_ap():
+                            print(
+                                "Fallback access point restored",
+                                flush=True,
+                            )
+                        else:
+                            print(
+                                "Fallback access point restore failed",
+                                flush=True,
+                            )
                 else:
                     print(
                         "Fallback access point failed to start",
                         flush=True,
                     )
-
-                return
 
         time.sleep(NETWORK_CHECK_INTERVAL)
 
