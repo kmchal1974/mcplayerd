@@ -537,3 +537,45 @@ class NetworkManagerStatus:
                 return connection
 
         return None
+
+    def add_wifi_connection(
+        self,
+        ssid: str,
+        password: str,
+    ) -> bool:
+        """Create and activate a saved Wi-Fi connection."""
+        if not self.nmcli_path:
+            return False
+
+        wifi_device = self.get_wifi_device()
+
+        if wifi_device is None:
+            return False
+
+        ssid = ssid.strip()
+
+        if not ssid or not password:
+            return False
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "--wait",
+                "30",
+                "device",
+                "wifi",
+                "connect",
+                ssid,
+                "password",
+                password,
+                "ifname",
+                wifi_device,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=35,
+            env=self._environment(),
+            check=False,
+        )
+
+        return result.returncode == 0
