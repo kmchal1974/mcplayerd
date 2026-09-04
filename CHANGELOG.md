@@ -1,3 +1,7 @@
+✓ 3D-F Automatic fallback-AP recovery
+- Added automatic recovery from the McPlayer fallback AP to saved Wi-Fi networks.
+- After normal Wi-Fi is restored, McPlayerD automatically selects a meaningfully stronger saved network.
+
 ✓ 3D-E Automatic preferred-network switching
 
 - Added automatic switching to the preferred saved Wi-Fi network when another known network is at least 15 signal points stronger.

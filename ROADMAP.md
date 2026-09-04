@@ -49,3 +49,5 @@ Phase 1
 **Milestone:** v0.2.0 — Network Observation
 
 ✓ 3D-E Automatic preferred-network switching
+
+✓ 3D-F Automatic fallback-AP recovery
