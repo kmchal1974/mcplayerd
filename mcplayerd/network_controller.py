@@ -58,7 +58,12 @@ class NetworkController:
         )
 
     def return_to_automatic(self) -> bool:
-        """Try saved Wi-Fi once; otherwise remain in AP mode."""
+        """Keep usable Wi-Fi, otherwise try saved Wi-Fi once, then use AP."""
+        if self.network_manager.has_usable_wifi(
+            self.hotspot_connection
+        ):
+            return True
+
         recovered_connection = (
             self.network_manager.try_saved_wifi_connections(
                 self.hotspot_connection
