@@ -31,6 +31,13 @@ class NetworkControlServer:
         elif action == "automatic":
             success = self.controller.return_to_automatic()
 
+        elif action == "connect_saved":
+            connection_name = request.get("connection", "")
+
+            success = self.controller.connect_saved_network(
+                connection_name
+            )
+
         else:
             return {
                 "ok": False,
