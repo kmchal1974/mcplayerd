@@ -75,10 +75,43 @@ class NetworkController:
 
         return self.force_ap_mode()
 
-    def get_saved_networks(self) -> list[str]:
-        """Return saved normal Wi-Fi connections."""
-        return [
+    def get_saved_networks(self) -> list[dict]:
+        """Return saved normal Wi-Fi connections with current signal."""
+
+        saved_connections = [
             name
             for name in self.network_manager.get_known_wifi_connections()
             if name != self.hotspot_connection
         ]
+
+        signal_results = (
+            self.network_manager.get_known_wifi_signals()
+        )
+
+        signal_by_connection = {
+            item["connection"]: item
+            for item in signal_results
+        }
+
+        networks = []
+
+        for connection_name in saved_connections:
+            signal_info = signal_by_connection.get(
+                connection_name
+            )
+
+            if signal_info is None:
+                networks.append({
+                    "name": connection_name,
+                    "ssid": connection_name,
+                    "signal": None,
+                })
+            else:
+                networks.append({
+                    "name": connection_name,
+                    "ssid": signal_info["ssid"],
+                    "signal": signal_info["signal"],
+                })
+
+        return networks
+        
