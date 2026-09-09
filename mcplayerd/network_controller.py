@@ -74,3 +74,11 @@ class NetworkController:
             return True
 
         return self.force_ap_mode()
+
+    def get_saved_networks(self) -> list[str]:
+        """Return saved normal Wi-Fi connections."""
+        return [
+            name
+            for name in self.network_manager.get_known_wifi_connections()
+            if name != self.hotspot_connection
+        ]

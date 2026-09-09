@@ -27,17 +27,19 @@ class NetworkControlServer:
 
         if action == "force_ap":
             success = self.controller.force_ap_mode()
-
         elif action == "automatic":
             success = self.controller.return_to_automatic()
-
+        elif action == "list_saved":
+            return {
+                "ok": True,
+                "action": action,
+                "networks": self.controller.get_saved_networks(),
+            }
         elif action == "connect_saved":
             connection_name = request.get("connection", "")
-
             success = self.controller.connect_saved_network(
                 connection_name
             )
-
         else:
             return {
                 "ok": False,
