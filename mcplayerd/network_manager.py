@@ -1,6 +1,7 @@
 """Read-only NetworkManager support for McPlayerD."""
 
 import os
+import tempfile
 import shutil
 import subprocess
 
@@ -543,7 +544,8 @@ class NetworkManagerStatus:
         ssid: str,
         password: str,
     ) -> bool:
-        """Create and activate a saved Wi-Fi connection."""
+        """Create, save, and activate a WPA/WPA2 Wi-Fi connection."""
+
         if not self.nmcli_path:
             return False
 
@@ -557,25 +559,101 @@ class NetworkManagerStatus:
         if not ssid or not password:
             return False
 
-        result = subprocess.run(
+        # Do not create a duplicate saved profile.
+        if ssid in self.get_known_wifi_connections():
+            return self.activate_wifi_connection(ssid)
+
+        create_result = subprocess.run(
             [
                 self.nmcli_path,
-                "--wait",
-                "30",
-                "device",
+                "connection",
+                "add",
+                "type",
                 "wifi",
-                "connect",
-                ssid,
-                "password",
-                password,
                 "ifname",
                 wifi_device,
+                "con-name",
+                ssid,
+                "ssid",
+                ssid,
+                "wifi-sec.key-mgmt",
+                "wpa-psk",
             ],
             capture_output=True,
             text=True,
-            timeout=35,
+            timeout=15,
             env=self._environment(),
             check=False,
         )
 
-        return result.returncode == 0
+        if create_result.returncode != 0:
+            return False
+
+        password_file = None
+
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                prefix="mcplayer-wifi-",
+                delete=False,
+            ) as temp_file:
+                password_file = temp_file.name
+
+                temp_file.write(
+                    "802-11-wireless-security.psk:"
+                    + password
+                    + "\n"
+                )
+
+            os.chmod(
+                password_file,
+                0o600,
+            )
+
+            connect_result = subprocess.run(
+                [
+                    self.nmcli_path,
+                    "--wait",
+                    "30",
+                    "connection",
+                    "up",
+                    "id",
+                    ssid,
+                    "ifname",
+                    wifi_device,
+                    "passwd-file",
+                    password_file,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=35,
+                env=self._environment(),
+                check=False,
+            )
+
+            if connect_result.returncode == 0:
+                return True
+
+            # Remove the incomplete profile if connection failed.
+            subprocess.run(
+                [
+                    self.nmcli_path,
+                    "connection",
+                    "delete",
+                    "id",
+                    ssid,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                env=self._environment(),
+                check=False,
+            )
+
+            return False
+        finally:
+            if password_file is not None:
+                try:
+                    os.remove(password_file)
+                except FileNotFoundError:
+                    pass
