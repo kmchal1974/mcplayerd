@@ -657,3 +657,73 @@ class NetworkManagerStatus:
                     os.remove(password_file)
                 except FileNotFoundError:
                     pass
+
+    def scan_wifi_networks(self) -> list[dict]:
+        """Scan for nearby Wi-Fi networks."""
+
+        if not self.nmcli_path:
+            return []
+
+        wifi_device = self.get_wifi_device()
+
+        if wifi_device is None:
+            return []
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "-t",
+                "-f",
+                "SSID,SIGNAL,SECURITY",
+                "device",
+                "wifi",
+                "list",
+                "ifname",
+                wifi_device,
+                "--rescan",
+                "yes",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            env=self._environment(),
+            check=False,
+        )
+
+        if result.returncode != 0:
+            return []
+
+        networks = {}
+
+        for line in result.stdout.splitlines():
+            parts = line.rsplit(":", 2)
+
+            if len(parts) != 3:
+                continue
+
+            ssid, signal_text, security = parts
+
+            ssid = ssid.strip()
+
+            if not ssid:
+                continue
+
+            try:
+                signal = int(signal_text)
+            except ValueError:
+                continue
+
+            existing = networks.get(ssid)
+
+            if existing is None or signal > existing["signal"]:
+                networks[ssid] = {
+                    "ssid": ssid,
+                    "signal": signal,
+                    "security": security.strip(),
+                }
+
+        return sorted(
+            networks.values(),
+            key=lambda network: network["signal"],
+            reverse=True,
+        )
