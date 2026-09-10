@@ -35,6 +35,12 @@ class NetworkControlServer:
                 "action": action,
                 "networks": self.controller.get_saved_networks(),
             }
+        elif action == "scan_wifi":
+            return {
+                "ok": True,
+                "action": action,
+                "networks": self.controller.network_manager.scan_wifi_networks(),
+            }
         elif action == "connect_saved":
             connection_name = request.get("connection", "")
             success = self.controller.connect_saved_network(
@@ -50,7 +56,7 @@ class NetworkControlServer:
             "ok": success,
             "action": action,
         }
-
+        
     def serve_forever(self) -> None:
         """Listen for local dashboard network-control commands."""
 
