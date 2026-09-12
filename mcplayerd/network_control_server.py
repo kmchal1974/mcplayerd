@@ -127,6 +127,17 @@ class NetworkControlServer:
                             "error": str(exc),
                         }
 
-                    connection.sendall(
-                        json.dumps(response).encode("utf-8")
-                    )
+                    try:
+                        connection.sendall(
+                            json.dumps(response).encode("utf-8")
+                        )
+                    except BrokenPipeError:
+                        print(
+                            "Network control client disconnected before response",
+                            flush=True,
+                        )
+                    except ConnectionResetError:
+                        print(
+                            "Network control client reset connection before response",
+                            flush=True,
+                        )
