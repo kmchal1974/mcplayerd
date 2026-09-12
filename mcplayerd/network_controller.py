@@ -44,12 +44,11 @@ class NetworkController:
     def add_and_connect_network(
         self,
         ssid: str,
-        password: str,
+        password: str = "",
     ) -> bool:
-        """Add a new Wi-Fi network and connect to it."""
         ssid = ssid.strip()
 
-        if not ssid or not password:
+        if not ssid:
             return False
 
         return self.network_manager.add_wifi_connection(

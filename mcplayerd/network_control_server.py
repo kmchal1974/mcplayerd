@@ -55,13 +55,7 @@ class NetworkControlServer:
                     "ok": False,
                     "error": "Missing SSID",
                 }
-
-            if not password:
-                return {
-                    "ok": False,
-                    "error": "Missing password",
-                }
-
+            
             success = self.controller.add_and_connect_network(
                 ssid,
                 password,
