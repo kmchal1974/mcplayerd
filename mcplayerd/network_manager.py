@@ -614,7 +614,7 @@ class NetworkManagerStatus:
                 [
                     self.nmcli_path,
                     "--wait",
-                    "30",
+                    "60",
                     "connection",
                     "up",
                     "id",
@@ -626,7 +626,7 @@ class NetworkManagerStatus:
                 ],
                 capture_output=True,
                 text=True,
-                timeout=35,
+                timeout=65,
                 env=self._environment(),
                 check=False,
             )
