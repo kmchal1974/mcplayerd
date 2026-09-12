@@ -542,43 +542,48 @@ class NetworkManagerStatus:
     def add_wifi_connection(
         self,
         ssid: str,
-        password: str,
+        password: str = "",
     ) -> bool:
-        """Create, save, and activate a WPA/WPA2 Wi-Fi connection."""
+        """Create, save, and activate a Wi-Fi connection."""
 
         if not self.nmcli_path:
             return False
 
-        wifi_device = self.get_wifi_device()
-
-        if wifi_device is None:
-            return False
-
         ssid = ssid.strip()
 
-        if not ssid or not password:
+        if not ssid:
+            return False
+
+        wifi_device = self.get_wifi_device()
+        if wifi_device is None:
             return False
 
         # Do not create a duplicate saved profile.
         if ssid in self.get_known_wifi_connections():
             return self.activate_wifi_connection(ssid)
 
-        create_result = subprocess.run(
-            [
-                self.nmcli_path,
-                "connection",
-                "add",
-                "type",
-                "wifi",
-                "ifname",
-                wifi_device,
-                "con-name",
-                ssid,
-                "ssid",
-                ssid,
+        create_command = [
+            self.nmcli_path,
+            "connection",
+            "add",
+            "type",
+            "wifi",
+            "ifname",
+            wifi_device,
+            "con-name",
+            ssid,
+            "ssid",
+            ssid,
+        ]
+
+        if password:
+            create_command.extend([
                 "wifi-sec.key-mgmt",
                 "wpa-psk",
-            ],
+            ])
+
+        create_result = subprocess.run(
+            create_command,
             capture_output=True,
             text=True,
             timeout=15,
@@ -587,6 +592,47 @@ class NetworkManagerStatus:
         )
 
         if create_result.returncode != 0:
+            return False
+
+        # Open network: no password file needed.
+        if not password:
+            connect_result = subprocess.run(
+                [
+                    self.nmcli_path,
+                    "--wait",
+                    "60",
+                    "connection",
+                    "up",
+                    "id",
+                    ssid,
+                    "ifname",
+                    wifi_device,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=65,
+                env=self._environment(),
+                check=False,
+            )
+
+            if connect_result.returncode == 0:
+                return True
+
+            subprocess.run(
+                [
+                    self.nmcli_path,
+                    "connection",
+                    "delete",
+                    "id",
+                    ssid,
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                env=self._environment(),
+                check=False,
+            )
+
             return False
 
         password_file = None
@@ -634,7 +680,6 @@ class NetworkManagerStatus:
             if connect_result.returncode == 0:
                 return True
 
-            # Remove the incomplete profile if connection failed.
             subprocess.run(
                 [
                     self.nmcli_path,
