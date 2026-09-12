@@ -46,6 +46,26 @@ class NetworkControlServer:
             success = self.controller.connect_saved_network(
                 connection_name
             )
+        elif action == "add_network":
+            ssid = str(request.get("ssid", "")).strip()
+            password = str(request.get("password", ""))
+
+            if not ssid:
+                return {
+                    "ok": False,
+                    "error": "Missing SSID",
+                }
+
+            if not password:
+                return {
+                    "ok": False,
+                    "error": "Missing password",
+                }
+
+            success = self.controller.add_and_connect_network(
+                ssid,
+                password,
+            )
         else:
             return {
                 "ok": False,
