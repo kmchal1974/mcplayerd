@@ -113,4 +113,37 @@ class NetworkController:
                 })
 
         return networks
-        
+
+    def enable_autoconnect(
+        self,
+        connection_name: str,
+    ) -> bool:
+        connection_name = connection_name.strip()
+
+        if not connection_name:
+            return False
+
+        if connection_name == self.hotspot_connection:
+            return False
+
+        return self.network_manager.set_connection_autoconnect(
+            connection_name,
+            True,
+        )
+
+    def disable_autoconnect(
+        self,
+        connection_name: str,
+    ) -> bool:
+        connection_name = connection_name.strip()
+
+        if not connection_name:
+            return False
+
+        if connection_name == self.hotspot_connection:
+            return False
+
+        return self.network_manager.set_connection_autoconnect(
+            connection_name,
+            False,
+        )
