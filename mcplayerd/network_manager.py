@@ -74,6 +74,37 @@ class NetworkManagerStatus:
 
         return None
 
+    def set_connection_autoconnect(
+        self,
+        connection_name: str,
+        enabled: bool,
+    ) -> bool:
+        """Enable or disable auto-connect for a saved NetworkManager profile."""
+        connection_name = connection_name.strip()
+
+        if not connection_name:
+            return False
+
+        value = "yes" if enabled else "no"
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "connection",
+                "modify",
+                connection_name,
+                "connection.autoconnect",
+                value,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            env=self._environment(),
+            check=False,
+        )
+
+        return result.returncode == 0
+
     def get_active_wifi_ssid(self) -> str | None:
         """Return the SSID currently used by the Wi-Fi interface."""
         if not self.nmcli_path:
@@ -593,6 +624,12 @@ class NetworkManagerStatus:
 
         if create_result.returncode != 0:
             return False
+
+        # Set newly created network to auto-connect OFF by default
+        self.set_connection_autoconnect(
+            ssid,
+            False,
+        )
 
         # Open network: no password file needed.
         if not password:
