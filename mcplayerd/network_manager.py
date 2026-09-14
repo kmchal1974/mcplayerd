@@ -852,3 +852,34 @@ class NetworkManagerStatus:
             return False
 
         return None
+
+    def delete_connection(
+        self,
+        connection_name: str,
+    ) -> bool:
+        """Delete a saved NetworkManager connection."""
+
+        if not self.nmcli_path:
+            return False
+
+        connection_name = connection_name.strip()
+
+        if not connection_name:
+            return False
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "connection",
+                "delete",
+                "id",
+                connection_name,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            env=self._environment(),
+            check=False,
+        )
+
+        return result.returncode == 0

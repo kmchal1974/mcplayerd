@@ -155,3 +155,27 @@ class NetworkController:
             connection_name,
             False,
         )
+
+    def forget_network(
+        self,
+        connection_name: str,
+    ) -> bool:
+        """Forget a saved Wi-Fi connection, but never the McPlayer AP."""
+        connection_name = connection_name.strip()
+
+        if not connection_name:
+            return False
+
+        if connection_name == self.hotspot_connection:
+            return False
+
+        known_connections = (
+            self.network_manager.get_known_wifi_connections()
+        )
+
+        if connection_name not in known_connections:
+            return False
+
+        return self.network_manager.delete_connection(
+            connection_name
+        )
