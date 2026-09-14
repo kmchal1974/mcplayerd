@@ -55,10 +55,38 @@ class NetworkControlServer:
                     "ok": False,
                     "error": "Missing SSID",
                 }
-            
+
             success = self.controller.add_and_connect_network(
                 ssid,
                 password,
+            )
+        elif action == "enable_autoconnect":
+            connection_name = str(
+                request.get("connection", "")
+            ).strip()
+
+            if not connection_name:
+                return {
+                    "ok": False,
+                    "error": "Missing connection",
+                }
+
+            success = self.controller.enable_autoconnect(
+                connection_name
+            )
+        elif action == "disable_autoconnect":
+            connection_name = str(
+                request.get("connection", "")
+            ).strip()
+
+            if not connection_name:
+                return {
+                    "ok": False,
+                    "error": "Missing connection",
+                }
+
+            success = self.controller.disable_autoconnect(
+                connection_name
             )
         else:
             return {
@@ -70,7 +98,7 @@ class NetworkControlServer:
             "ok": success,
             "action": action,
         }
-        
+
     def serve_forever(self) -> None:
         """Listen for local dashboard network-control commands."""
 
