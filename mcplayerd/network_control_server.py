@@ -74,6 +74,20 @@ class NetworkControlServer:
             success = self.controller.enable_autoconnect(
                 connection_name
             )
+        elif action == "forget_network":
+            connection_name = str(
+                request.get("connection", "")
+            ).strip()
+
+            if not connection_name:
+                return {
+                    "ok": False,
+                    "error": "Missing connection",
+                }
+
+            success = self.controller.forget_network(
+                connection_name
+            )
         elif action == "disable_autoconnect":
             connection_name = str(
                 request.get("connection", "")
