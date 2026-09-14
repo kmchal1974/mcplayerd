@@ -809,3 +809,46 @@ class NetworkManagerStatus:
             key=lambda network: network["signal"],
             reverse=True,
         )
+
+    def get_connection_autoconnect(
+        self,
+        connection_name: str,
+    ) -> bool | None:
+        """Return the autoconnect setting for a saved connection."""
+
+        if not self.nmcli_path:
+            return None
+
+        connection_name = connection_name.strip()
+
+        if not connection_name:
+            return None
+
+        result = subprocess.run(
+            [
+                self.nmcli_path,
+                "-g",
+                "connection.autoconnect",
+                "connection",
+                "show",
+                connection_name,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            env=self._environment(),
+            check=False,
+        )
+
+        if result.returncode != 0:
+            return None
+
+        value = result.stdout.strip().lower()
+
+        if value == "yes":
+            return True
+
+        if value == "no":
+            return False
+
+        return None

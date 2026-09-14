@@ -104,12 +104,20 @@ class NetworkController:
                     "name": connection_name,
                     "ssid": connection_name,
                     "signal": None,
+                    "autoconnect":
+                        self.network_manager.get_connection_autoconnect(
+                            connection_name
+           ),
                 })
             else:
                 networks.append({
                     "name": connection_name,
                     "ssid": signal_info["ssid"],
                     "signal": signal_info["signal"],
+                    "autoconnect":
+                        self.network_manager.get_connection_autoconnect(
+                            connection_name
+                        ),
                 })
 
         return networks
