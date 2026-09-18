@@ -8,6 +8,7 @@ from mcplayerd.mpd_client import McPlayerMPDClient
 from mcplayerd.network_manager import NetworkManagerStatus
 from mcplayerd.state_writer import STATE_PATH, write_state
 from mcplayerd.network_control_server import NetworkControlServer
+from mcplayerd.player_control_server import PlayerControlServer
 
 RECONNECT_DELAY = 5
 NETWORK_CHECK_INTERVAL = 5
@@ -112,6 +113,14 @@ def run() -> None:
     )
     network_control_thread.start()
 
+    player_control_server = PlayerControlServer()
+
+    player_control_thread = threading.Thread(
+        target=player_control_server.serve_forever,
+        daemon=True,
+        name="player-control",
+    )
+    player_control_thread.start()
     print(
         f"NetworkManager available: {network_manager.is_available()}",
         flush=True,
