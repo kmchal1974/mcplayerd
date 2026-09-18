@@ -9,11 +9,9 @@ $value  = $_POST['value'] ?? '';
 
 switch ($action) {
     case "previous":
-        shell_exec("mpc prev");
-        break;
-
     case "play":
     case "pause":
+    case "next":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -79,9 +77,8 @@ switch ($action) {
 
         break;
 
-    case "toggle":   shell_exec("mpc toggle"); break;
+     case "toggle":   shell_exec("mpc toggle"); break;
     case "stop":     shell_exec("mpc stop"); break;
-    case "next":     shell_exec("mpc next"); break;
 
     case "volume":
         $v = max(0, min(100, intval($value)));
