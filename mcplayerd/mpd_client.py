@@ -40,3 +40,11 @@ class McPlayerMPDClient:
     def wait_for_change(self) -> list[str]:
         """Wait for an MPD player or playlist change."""
         return self.client.idle("player", "playlist")
+
+    def play(self) -> None:
+        """Start or resume MPD playback."""
+        self.client.play()
+
+    def pause(self) -> None:
+        """Pause MPD playback."""
+        self.client.pause(1)
