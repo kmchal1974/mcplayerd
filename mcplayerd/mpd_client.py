@@ -48,3 +48,11 @@ class McPlayerMPDClient:
     def pause(self) -> None:
         """Pause MPD playback."""
         self.client.pause(1)
+
+    def previous(self) -> None:
+        """Skip to the previous MPD track."""
+        self.client.previous()
+
+    def next(self) -> None:
+        """Skip to the next MPD track."""
+        self.client.next()
