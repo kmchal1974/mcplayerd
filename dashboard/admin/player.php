@@ -8,9 +8,77 @@ $action = $_POST['action'] ?? '';
 $value  = $_POST['value'] ?? '';
 
 switch ($action) {
-    case "previous": shell_exec("mpc prev"); break;
-    case "play":     shell_exec("mpc play"); break;
-    case "pause":    shell_exec("mpc pause"); break;
+    case "previous":
+        shell_exec("mpc prev");
+        break;
+
+    case "play":
+    case "pause":
+        $socketPath = '/run/mcplayer/player-control.sock';
+        $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
+
+        if ($socket === false) {
+            http_response_code(500);
+            echo json_encode([
+                "success" => false,
+                "error" => "Could not create player control socket"
+            ]);
+            exit;
+        }
+
+        if (!socket_connect($socket, $socketPath)) {
+            http_response_code(500);
+            echo json_encode([
+                "success" => false,
+                "error" => "Could not connect to McPlayerD"
+            ]);
+            socket_close($socket);
+            exit;
+        }
+
+        $request = json_encode([
+            "action" => $action
+        ]);
+
+        socket_write(
+            $socket,
+            $request,
+            strlen($request)
+        );
+
+        $response = socket_read(
+            $socket,
+            8192
+        );
+
+        socket_close($socket);
+
+        if ($response === false || $response === '') {
+            http_response_code(500);
+            echo json_encode([
+                "success" => false,
+                "error" => "No response from McPlayerD"
+            ]);
+            exit;
+        }
+
+        $mcplayerResponse = json_decode($response, true);
+
+        if (
+            !is_array($mcplayerResponse) ||
+            !($mcplayerResponse['ok'] ?? false)
+        ) {
+            http_response_code(500);
+            echo json_encode([
+                "success" => false,
+                "error" => $mcplayerResponse['error']
+                    ?? "McPlayerD player command failed"
+            ]);
+            exit;
+        }
+
+        break;
+
     case "toggle":   shell_exec("mpc toggle"); break;
     case "stop":     shell_exec("mpc stop"); break;
     case "next":     shell_exec("mpc next"); break;
