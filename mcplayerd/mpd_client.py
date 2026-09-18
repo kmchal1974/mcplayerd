@@ -56,3 +56,7 @@ class McPlayerMPDClient:
     def next(self) -> None:
         """Skip to the next MPD track."""
         self.client.next()
+
+    def stop(self) -> None:
+        """Stop MPD playback."""
+        self.client.stop()
