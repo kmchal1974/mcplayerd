@@ -43,7 +43,6 @@
                 <div class="player-controls">
                     <button id="prevBtn" class="control-btn" aria-label="Previous">⏮</button>
                     <button id="playBtn" class="control-btn" aria-label="Play">▶</button>
-                    <button id="pauseBtn" class="control-btn" aria-label="Pause">⏸</button>
                     <button id="stopBtn" class="control-btn" aria-label="Stop">⏹</button>
                     <button id="nextBtn" class="control-btn" aria-label="Next">⏭</button>
                 </div>
