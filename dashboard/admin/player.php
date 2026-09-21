@@ -13,6 +13,7 @@ switch ($action) {
     case "pause":
     case "next":
     case "stop":
+    case "toggle":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -77,8 +78,6 @@ switch ($action) {
         }
 
         break;
-
-     case "toggle":   shell_exec("mpc toggle"); break;
 
     case "volume":
         $v = max(0, min(100, intval($value)));
