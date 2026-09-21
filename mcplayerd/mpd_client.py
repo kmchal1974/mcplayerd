@@ -60,3 +60,12 @@ class McPlayerMPDClient:
     def stop(self) -> None:
         """Stop MPD playback."""
         self.client.stop()
+
+    def toggle(self) -> None:
+        """Toggle MPD between play and pause."""
+        status = self.client.status()
+
+        if status.get("state") == "play":
+            self.client.pause(1)
+        else:
+            self.client.play()
