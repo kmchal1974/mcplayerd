@@ -69,3 +69,8 @@ class McPlayerMPDClient:
             self.client.pause(1)
         else:
             self.client.play()
+
+    def set_volume(self, volume: int) -> None:
+        """Set MPD volume from 0 to 100."""
+        volume = max(0, min(100, volume))
+        self.client.setvol(volume)
