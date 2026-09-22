@@ -74,3 +74,8 @@ class McPlayerMPDClient:
         """Set MPD volume from 0 to 100."""
         volume = max(0, min(100, volume))
         self.client.setvol(volume)
+
+    def seek(self, seconds: int) -> None:
+        """Seek to an absolute position in the current track."""
+        seconds = max(0, seconds)
+        self.client.seekcur(seconds)
