@@ -15,6 +15,7 @@ switch ($action) {
     case "stop":
     case "toggle":
     case "volume":
+    case "seek":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -44,7 +45,9 @@ switch ($action) {
         if ($action === "volume") {
             $requestData["value"] = max(0, min(100, intval($value)));
         }
-
+        if ($action === "seek") {
+            $requestData["value"] = max(0, intval($value));
+        }
         $request = json_encode($requestData);
 
         socket_write(
@@ -84,11 +87,6 @@ switch ($action) {
             exit;
         }
 
-        break;
-
-    case "seek":
-        $s = intval($value);
-        shell_exec(sprintf("mpc seek %d", $s));
         break;
 
     case "shuffle":
