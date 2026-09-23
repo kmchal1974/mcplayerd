@@ -15,7 +15,7 @@ $status = shell_exec("mpc status");
 preg_match('/\[(.*?)\]/', $status, $stateMatch);
 $state = strtolower($stateMatch[1] ?? "stopped");
 
-preg_match('/([0-9:]+)\/([0-9:]+)/', $status, $timesMatch);
+preg_match('/(\d+:\d+)\/(\d+:\d+)/', $status, $timesMatch);
 $elapsed = $timesMatch[1] ?? "0:00";
 $length = $timesMatch[2] ?? "0:00";
 
