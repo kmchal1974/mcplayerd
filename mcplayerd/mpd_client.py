@@ -89,3 +89,13 @@ class McPlayerMPDClient:
         status = self.get_status()
         enabled = status.get("random") == "1"
         self.set_random(not enabled)
+
+    def set_repeat(self, enabled: bool) -> None:
+        """Enable or disable MPD repeat playback."""
+        self.client.repeat(1 if enabled else 0)
+
+    def toggle_repeat(self) -> None:
+        """Toggle MPD repeat playback."""
+        status = self.get_status()
+        enabled = status.get("repeat") == "1"
+        self.set_repeat(not enabled)
