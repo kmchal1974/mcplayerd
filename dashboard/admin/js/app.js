@@ -192,6 +192,22 @@ function updatePlayback(d) {
         d.state || "stopped"
     );
 
+    //----------------------------------------------------
+    // Shuffle State
+    //----------------------------------------------------
+
+    const shuffleBtn =
+        $("shuffleBtn");
+
+    if (shuffleBtn) {
+
+        shuffleBtn.classList.toggle(
+            "active",
+            d.random === true
+        );
+
+    }
+
 }
 
 //============================================================
