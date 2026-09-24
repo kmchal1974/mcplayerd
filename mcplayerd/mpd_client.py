@@ -79,3 +79,13 @@ class McPlayerMPDClient:
         """Seek to an absolute position in the current track."""
         seconds = max(0, seconds)
         self.client.seekcur(seconds)
+
+    def set_random(self, enabled: bool) -> None:
+        """Enable or disable MPD random playback."""
+        self.client.random(1 if enabled else 0)
+
+    def toggle_random(self) -> None:
+        """Toggle MPD random playback."""
+        status = self.get_status()
+        enabled = status.get("random") == "1"
+        self.set_random(not enabled)
