@@ -16,7 +16,8 @@ switch ($action) {
     case "toggle":
     case "volume":
     case "seek":
-    case "shuffle":        
+    case "shuffle":
+    case "repeat":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -50,6 +51,10 @@ switch ($action) {
             $requestData["value"] = max(0, intval($value));
         }
         if ($action === "shuffle" && $value !== '') {
+            $requestData["value"] =
+                ($value === 'true' || $value === '1' || $value === 'on');
+        }
+        if ($action === "repeat" && $value !== '') {
             $requestData["value"] =
                 ($value === 'true' || $value === '1' || $value === 'on');
         }
@@ -92,15 +97,6 @@ switch ($action) {
             exit;
         }
 
-        break;
-
-        case "repeat":
-        if ($value === '') {
-            shell_exec("mpc repeat");
-        } else {
-            $status = ($value === 'true' || $value === '1' || $value === 'on') ? "on" : "off";
-            shell_exec("mpc repeat $status");
-        }
         break;
 
     case "clear":
