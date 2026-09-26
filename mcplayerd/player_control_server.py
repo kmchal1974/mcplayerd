@@ -24,7 +24,7 @@ class PlayerControlServer:
         """Execute one player-control command."""
         action = request.get("action")
 
-        if action not in ("play", "pause", "previous", "next", "stop", "toggle", "volume", "seek", "shuffle", "repeat",):
+        if action not in ("play", "pause", "previous", "next", "stop", "toggle", "volume", "seek", "shuffle", "repeat", "clear",):
             return {
                 "ok": False,
                 "error": "Unknown action",
@@ -65,6 +65,8 @@ class PlayerControlServer:
                     mpd.toggle_repeat()
                 else:
                     mpd.set_repeat(bool(value))
+            elif action == "clear":
+                mpd.clear()
 
             status = mpd.get_status()
 
