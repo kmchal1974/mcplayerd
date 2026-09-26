@@ -99,3 +99,7 @@ class McPlayerMPDClient:
         status = self.get_status()
         enabled = status.get("repeat") == "1"
         self.set_repeat(not enabled)
+
+    def clear(self) -> None:
+        """Clear the current MPD playlist."""
+        self.client.clear()
