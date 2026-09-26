@@ -18,6 +18,7 @@ switch ($action) {
     case "seek":
     case "shuffle":
     case "repeat":
+    case "clear":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -97,10 +98,6 @@ switch ($action) {
             exit;
         }
 
-        break;
-
-    case "clear":
-        shell_exec("mpc clear");
         break;
 
     case "add":
