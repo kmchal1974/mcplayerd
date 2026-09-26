@@ -208,6 +208,21 @@ function updatePlayback(d) {
 
     }
 
+    //----------------------------------------------------
+    // Repeat State
+    //----------------------------------------------------
+
+    const repeatBtn =
+        $("repeatBtn");
+
+    if (repeatBtn) {
+
+        repeatBtn.classList.toggle(
+            "active",
+            d.repeat === true
+        );
+
+    }
 }
 
 //============================================================
