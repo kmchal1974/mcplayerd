@@ -1,5 +1,48 @@
 # Changelog
 
+## v0.5.0 - Player Control
+
+Moved active dashboard playback controls behind the McPlayerD local control interface.
+
+### Added
+
+- McPlayerD player-control Unix socket commands for playback control
+- Play and pause control
+- Play/pause toggle
+- Previous and next track control
+- Stop control
+- Volume control
+- Seek control
+- Shuffle control
+- Repeat control
+- Playlist clear control
+- Playlist index playback control
+
+### Changed
+
+- Active dashboard playback controls now communicate with McPlayerD instead of invoking `mpc` directly.
+- Dashboard shuffle state now follows MPD state, including changes made through RompR.
+- Dashboard repeat state now follows MPD state, including changes made through RompR.
+- Dashboard playlist track selection now plays the selected track through McPlayerD.
+
+### Fixed
+
+- Corrected dashboard track-time parsing so the playback progress bar updates correctly.
+
+### Verified
+
+- Play and pause
+- Previous and next track
+- Stop
+- Volume
+- Seek
+- Shuffle control and synchronization with RompR
+- Repeat control and synchronization with RompR
+- Clear playlist
+- Dashboard playlist click-to-play
+- Dashboard playback progress display
+
+
 ## v0.4.0 - Network Management
 
 Reworked McPlayer networking around a sticky connection policy and added browser-based Wi-Fi management.

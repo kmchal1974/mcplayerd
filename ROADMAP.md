@@ -117,3 +117,37 @@ McPlayer follows a sticky network policy:
 - [ ] Integrate network controls into the main `/admin` dashboard
 - [ ] Consider HTTPS for local dashboard/password protection
 - [ ] Complete final reboot/travel testing
+
+## Player Control
+
+- [x] Control MPD through the McPlayerD Unix socket
+- [x] Play
+- [x] Pause
+- [x] Toggle play/pause
+- [x] Previous track
+- [x] Next track
+- [x] Stop
+- [x] Volume control
+- [x] Seek within the current track
+- [x] Shuffle control
+- [x] Synchronize dashboard shuffle state with MPD
+- [x] Repeat control
+- [x] Synchronize dashboard repeat state with MPD
+- [x] Clear the current playlist
+- [x] Play a selected track from the current playlist
+- [x] Route active dashboard playback controls through McPlayerD
+
+### Tested
+
+- [x] Play and pause through McPlayerD
+- [x] Previous and next track
+- [x] Stop playback
+- [x] Volume control
+- [x] Seek control
+- [x] Shuffle control and RompR synchronization
+- [x] Repeat control and RompR synchronization
+- [x] Clear playlist
+- [x] Dashboard playlist click-to-play
+- [x] Dashboard playback controls remain functional through McPlayerD
+
+**Milestone:** v0.5.0 - Player Control
