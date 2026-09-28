@@ -19,6 +19,7 @@ switch ($action) {
     case "shuffle":
     case "repeat":
     case "clear":
+    case "playindex":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -50,6 +51,9 @@ switch ($action) {
         }
         if ($action === "seek") {
             $requestData["value"] = max(0, intval($value));
+        }
+        if ($action === "playindex") {
+            $requestData["value"] = max(1, intval($value));
         }
         if ($action === "shuffle" && $value !== '') {
             $requestData["value"] =
@@ -112,11 +116,6 @@ switch ($action) {
             $file = escapeshellarg($value);
             shell_exec("mpc clear && mpc add $file && mpc play");
         }
-        break;
-
-    case "playindex":
-        $track = max(1, intval($value));
-        shell_exec("mpc play " . escapeshellarg($track));
         break;
 
     default:
