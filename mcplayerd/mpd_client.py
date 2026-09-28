@@ -103,3 +103,8 @@ class McPlayerMPDClient:
     def clear(self) -> None:
         """Clear the current MPD playlist."""
         self.client.clear()
+
+    def play_index(self, track: int) -> None:
+        """Play a track from the current MPD playlist by 1-based index."""
+        track = max(1, track)
+        self.client.play(track - 1)
