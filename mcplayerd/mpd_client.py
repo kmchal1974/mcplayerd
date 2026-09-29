@@ -130,3 +130,16 @@ class McPlayerMPDClient:
             for item in results
             if item.get("album")
         ]
+
+    def list_album_tracks(
+        self,
+        album_artist: str,
+        album: str,
+    ) -> list[dict]:
+        """Return tracks for an album from the MPD music library."""
+        return self.client.find(
+            "albumartist",
+            album_artist,
+            "album",
+            album,
+        )
