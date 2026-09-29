@@ -108,3 +108,7 @@ class McPlayerMPDClient:
         """Play a track from the current MPD playlist by 1-based index."""
         track = max(1, track)
         self.client.play(track - 1)
+
+    def list_album_artists(self) -> list[str]:
+        """Return album artists from the MPD music library."""
+        return self.client.list("albumartist")
