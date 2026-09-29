@@ -156,7 +156,7 @@ McPlayer follows a sticky network policy:
 
 ### Library Browser
 
-- [ ] Read album artists from the MPD library
+- [x] Read album artists from the MPD library
 - [ ] Browse albums for a selected artist
 - [ ] Browse tracks for a selected album
 - [ ] Display the music library in the Admin dashboard
