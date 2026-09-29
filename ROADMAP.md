@@ -151,3 +151,51 @@ McPlayer follows a sticky network policy:
 - [x] Dashboard playback controls remain functional through McPlayerD
 
 **Milestone:** v0.5.0 - Player Control
+
+## Library & Playlist Management
+
+### Library Browser
+
+- [ ] Read album artists from the MPD library
+- [ ] Browse albums for a selected artist
+- [ ] Browse tracks for a selected album
+- [ ] Display the music library in the Admin dashboard
+
+### Queue Management
+
+- [ ] Add a selected track to the current queue
+- [ ] Add a selected album to the current queue
+- [ ] Play a selected track immediately
+- [ ] Play a selected album immediately
+- [ ] Remove an individual track from the current queue
+- [ ] Reorder tracks in the current queue
+- [ ] Manage the queue through McPlayerD
+
+### Saved Playlists
+
+- [ ] List saved playlists
+- [ ] Load a saved playlist into the queue
+- [ ] Save the current queue as a new named playlist
+- [ ] Update an existing playlist from the current queue
+- [ ] Delete a saved playlist with confirmation
+- [ ] Manage saved playlists through McPlayerD
+
+### Architecture
+
+- [ ] Route new library, queue, and playlist operations through McPlayerD
+- [ ] Keep RompR functional alongside the Admin dashboard
+- [ ] Avoid direct `mpc` commands for new Admin library and playlist features
+
+### Tested
+
+- [ ] Browse Artist -> Album -> Tracks from the Admin dashboard
+- [ ] Build a queue from library selections
+- [ ] Play library selections from the Admin dashboard
+- [ ] Remove and reorder queued tracks
+- [ ] Save a new playlist
+- [ ] Load a saved playlist
+- [ ] Modify a loaded playlist and explicitly save the changes
+- [ ] Delete a saved playlist
+- [ ] RompR remains operational
+
+**Milestone:** v0.6.0 - Library & Playlist Management
