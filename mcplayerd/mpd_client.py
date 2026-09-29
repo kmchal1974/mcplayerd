@@ -111,4 +111,9 @@ class McPlayerMPDClient:
 
     def list_album_artists(self) -> list[str]:
         """Return album artists from the MPD music library."""
-        return self.client.list("albumartist")
+        results = self.client.list("albumartist")
+        return [
+            item["albumartist"]
+            for item in results
+            if item.get("albumartist")
+        ]
