@@ -72,10 +72,15 @@ switch ($action) {
             strlen($request)
         );
 
-        $response = socket_read(
-            $socket,
-            8192
-        );
+        $response = '';
+
+        while (($chunk = socket_read($socket, 8192)) !== false) {
+            if ($chunk === '') {
+                break;
+            }
+
+            $response .= $chunk;
+        }
 
         socket_close($socket);
 
