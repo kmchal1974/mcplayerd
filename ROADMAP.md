@@ -182,6 +182,7 @@ McPlayer follows a sticky network policy:
 
 ### Architecture
 
+- [x] Route library browsing operations through McPlayerD
 - [ ] Route new library, queue, and playlist operations through McPlayerD
 - [ ] Keep RompR functional alongside the Admin dashboard
 - [ ] Avoid direct `mpc` commands for new Admin library and playlist features
