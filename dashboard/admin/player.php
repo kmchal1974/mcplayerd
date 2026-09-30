@@ -20,6 +20,7 @@ switch ($action) {
     case "repeat":
     case "clear":
     case "playindex":
+    case "list_artists":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -98,6 +99,16 @@ switch ($action) {
                 "success" => false,
                 "error" => $mcplayerResponse['error']
                     ?? "McPlayerD player command failed"
+            ]);
+            exit;
+        }
+
+
+        if ($action === "list_artists") {
+            echo json_encode([
+                "success" => true,
+                "action" => $action,
+                "artists" => $mcplayerResponse['artists'] ?? []
             ]);
             exit;
         }
