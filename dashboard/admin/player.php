@@ -21,6 +21,7 @@ switch ($action) {
     case "clear":
     case "playindex":
     case "list_artists":
+    case "list_albums":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -47,6 +48,9 @@ switch ($action) {
             "action" => $action
         ];
 
+        if ($action === "list_albums") {
+            $requestData["artist"] = $value;
+        }
         if ($action === "volume") {
             $requestData["value"] = max(0, min(100, intval($value)));
         }
@@ -114,6 +118,15 @@ switch ($action) {
                 "success" => true,
                 "action" => $action,
                 "artists" => $mcplayerResponse['artists'] ?? []
+            ]);
+            exit;
+        }
+
+        if ($action === "list_albums") {
+            echo json_encode([
+                "success" => true,
+                "action" => $action,
+                "albums" => $mcplayerResponse['albums'] ?? []
             ]);
             exit;
         }
