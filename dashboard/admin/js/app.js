@@ -1233,6 +1233,10 @@ function loadLibraryArtists() {
                 row.className = "track";
                 row.textContent = artist;
 
+                row.onclick = () => {
+                    loadLibraryAlbums(artist);
+                };
+
                 browser.appendChild(row);
             });
         })
@@ -1245,5 +1249,51 @@ function loadLibraryArtists() {
 
             browser.textContent =
                 "Unable to load music library.";
+        });
+}
+
+function loadLibraryAlbums(artist) {
+
+    const browser = $("library-browser");
+
+    if (!browser) return;
+
+    browser.textContent =
+        `Loading albums for ${artist}...`;
+
+    postPlayer("list_albums", artist)
+        .then(data => {
+
+            if (
+                !data.success ||
+                !Array.isArray(data.albums)
+            ) {
+                browser.textContent =
+                    "Unable to load albums.";
+                return;
+            }
+
+            browser.innerHTML = "";
+
+            data.albums.forEach(album => {
+
+                const row =
+                    document.createElement("div");
+
+                row.className = "track";
+                row.textContent = album;
+
+                browser.appendChild(row);
+            });
+        })
+        .catch(err => {
+
+            console.error(
+                "Library Album Load Failed",
+                err
+            );
+
+            browser.textContent =
+                "Unable to load albums.";
         });
 }
