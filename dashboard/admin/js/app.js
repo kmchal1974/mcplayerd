@@ -1195,6 +1195,55 @@ document.addEventListener(
 
         startDashboard();
 
+        loadLibraryArtists();
+
     }
 
 );
+
+//============================================================
+// Music Library Browser
+//============================================================
+
+function loadLibraryArtists() {
+
+    const browser = $("library-browser");
+
+    if (!browser) return;
+
+    postPlayer("list_artists")
+        .then(data => {
+
+            if (
+                !data.success ||
+                !Array.isArray(data.artists)
+            ) {
+                browser.textContent =
+                    "Unable to load music library.";
+                return;
+            }
+
+            browser.innerHTML = "";
+
+            data.artists.forEach(artist => {
+
+                const row =
+                    document.createElement("div");
+
+                row.className = "track";
+                row.textContent = artist;
+
+                browser.appendChild(row);
+            });
+        })
+        .catch(err => {
+
+            console.error(
+                "Library Artist Load Failed",
+                err
+            );
+
+            browser.textContent =
+                "Unable to load music library.";
+        });
+}
