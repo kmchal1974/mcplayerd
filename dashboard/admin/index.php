@@ -89,6 +89,12 @@
                 </table>
             </div>
 
+            <!-- MUSIC LIBRARY BROWSER -->
+            <div class="card">
+                <h2>Music Library</h2>
+                <div id="library-browser">Loading Artists...</div>
+            </div>
+
             <!-- LIBRARY SCAN PROGRESS -->
             <div class="card">
                 <h2>Library Scan</h2>
