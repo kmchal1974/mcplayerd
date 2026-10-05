@@ -1283,6 +1283,13 @@ function loadLibraryAlbums(artist) {
                 row.className = "track";
                 row.textContent = album;
 
+                row.onclick = () => {
+                    loadLibraryTracks(
+                        artist,
+                        album
+                    );
+                };
+
                 browser.appendChild(row);
             });
         })
@@ -1295,5 +1302,73 @@ function loadLibraryAlbums(artist) {
 
             browser.textContent =
                 "Unable to load albums.";
+        });
+}
+
+function loadLibraryTracks(artist, album) {
+
+    const browser = $("library-browser");
+
+    if (!browser) return;
+
+    browser.textContent =
+        `Loading tracks for ${album}...`;
+
+    const body = new URLSearchParams();
+
+    body.append("action", "list_tracks");
+    body.append("artist", artist);
+    body.append("album", album);
+
+    fetch("api/player.php", {
+        method: "POST",
+        headers: {
+            "Content-Type":
+                "application/x-www-form-urlencoded"
+        },
+        body
+    })
+        .then(response => response.json())
+        .then(data => {
+
+            if (
+                !data.success ||
+                !Array.isArray(data.tracks)
+            ) {
+                browser.textContent =
+                    "Unable to load tracks.";
+                return;
+            }
+
+            browser.innerHTML = "";
+
+            data.tracks.forEach(track => {
+
+                const row =
+                    document.createElement("div");
+
+                row.className = "track";
+
+                const number =
+                    track.track || "";
+
+                const title =
+                    track.title || track.file || "";
+
+                row.textContent =
+                    `${number} ${title}`.trim();
+
+                browser.appendChild(row);
+            });
+        })
+        .catch(err => {
+
+            console.error(
+                "Library Track Load Failed",
+                err
+            );
+
+            browser.textContent =
+                "Unable to load tracks.";
         });
 }
