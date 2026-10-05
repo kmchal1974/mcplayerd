@@ -143,3 +143,7 @@ class McPlayerMPDClient:
             "album",
             album,
         )
+
+    def add_track(self, file: str) -> None:
+        """Add a music library track to the current MPD playlist."""
+        self.client.add(file)
