@@ -148,6 +148,12 @@ class McPlayerMPDClient:
         """Add a music library track to the current MPD playlist."""
         self.client.add(file)
 
+    def play_track(self, file: str) -> None:
+        """Add a music library track to the queue and play it immediately."""
+        self.client.add(file)
+        playlist = self.client.playlistinfo()
+        self.client.play(len(playlist) - 1)
+
     def add_album(
         self,
         album_artist: str,
