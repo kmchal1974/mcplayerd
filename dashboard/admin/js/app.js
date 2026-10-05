@@ -1342,6 +1342,63 @@ function loadLibraryTracks(artist, album) {
 
             browser.innerHTML = "";
 
+            const addAlbumButton =
+                document.createElement("button");
+
+            addAlbumButton.textContent =
+                "Add Album to Queue";
+
+            addAlbumButton.onclick = () => {
+
+                const body =
+                    new URLSearchParams();
+
+                body.append(
+                    "action",
+                    "add_album"
+                );
+
+                body.append(
+                    "artist",
+                    artist
+                );
+
+                body.append(
+                    "album",
+                    album
+                );
+
+                fetch("api/player.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body
+                })
+                    .then(response =>
+                        response.json()
+                    )
+                    .then(data => {
+                        if (!data.success) {
+                            console.error(
+                                "Add Album Failed",
+                                data
+                            );
+                        }
+                    })
+                    .catch(err => {
+                        console.error(
+                            "Add Album Failed",
+                            err
+                        );
+                    });
+            };
+
+            browser.appendChild(
+                addAlbumButton
+            );
+
             data.tracks.forEach(track => {
 
                 const row =
