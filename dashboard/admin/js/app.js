@@ -1358,6 +1358,13 @@ function loadLibraryTracks(artist, album) {
                 row.textContent =
                     `${number} ${title}`.trim();
 
+                row.onclick = () => {
+                    postPlayer(
+                        "add_track",
+                        track.file
+                    );
+                };
+
                 browser.appendChild(row);
             });
         })
