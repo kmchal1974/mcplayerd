@@ -1412,15 +1412,33 @@ function loadLibraryTracks(artist, album) {
                 const title =
                     track.title || track.file || "";
 
-                row.textContent =
+                const trackLabel =
+                    document.createElement("span");
+
+                trackLabel.textContent =
                     `${number} ${title}`.trim();
 
-                row.onclick = () => {
+                trackLabel.onclick = () => {
                     postPlayer(
                         "add_track",
                         track.file
                     );
                 };
+
+                const playButton =
+                    document.createElement("button");
+
+                playButton.textContent = "Play";
+
+                playButton.onclick = () => {
+                    postPlayer(
+                        "play_track",
+                        track.file
+                    );
+                };
+
+                row.appendChild(trackLabel);
+                row.appendChild(playButton);
 
                 browser.appendChild(row);
             });
