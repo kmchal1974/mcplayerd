@@ -159,7 +159,7 @@ McPlayer follows a sticky network policy:
 - [x] Read album artists from the MPD library
 - [x] Browse albums for a selected artist
 - [x] Browse tracks for a selected album
-- [ ] Display the music library in the Admin dashboard
+- [x] Display the music library in the Admin dashboard
 
 ### Queue Management
 
@@ -189,7 +189,7 @@ McPlayer follows a sticky network policy:
 
 ### Tested
 
-- [ ] Browse Artist -> Album -> Tracks from the Admin dashboard
+- [x] Browse Artist -> Album -> Tracks from the Admin dashboard
 - [ ] Build a queue from library selections
 - [ ] Play library selections from the Admin dashboard
 - [ ] Remove and reorder queued tracks
