@@ -169,3 +169,19 @@ class McPlayerMPDClient:
             file = track.get("file")
             if file:
                 self.client.add(file)
+
+    def play_album(
+        self,
+        album_artist: str,
+        album: str,
+    ) -> None:
+        """Add an album to the queue and play it immediately."""
+        playlist_before = self.client.playlistinfo()
+        start_index = len(playlist_before)
+
+        self.add_album(
+            album_artist,
+            album,
+        )
+
+        self.client.play(start_index)
