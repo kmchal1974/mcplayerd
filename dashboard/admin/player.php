@@ -26,6 +26,7 @@ switch ($action) {
     case "add_track":
     case "add_album":
     case "play_track":
+    case "play_album":
         $socketPath = '/run/mcplayer/player-control.sock';
         $socket = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -66,6 +67,10 @@ switch ($action) {
             $requestData["file"] = $value;
         }
         if ($action === "add_album") {
+            $requestData["artist"] = $_POST["artist"] ?? "";
+            $requestData["album"] = $_POST["album"] ?? "";
+        }
+        if ($action === "play_album") {
             $requestData["artist"] = $_POST["artist"] ?? "";
             $requestData["album"] = $_POST["album"] ?? "";
         }
