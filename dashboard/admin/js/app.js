@@ -1399,6 +1399,63 @@ function loadLibraryTracks(artist, album) {
                 addAlbumButton
             );
 
+            const playAlbumButton =
+                document.createElement("button");
+
+            playAlbumButton.textContent =
+                "Play Album";
+
+            playAlbumButton.onclick = () => {
+
+                const body =
+                    new URLSearchParams();
+
+                body.append(
+                    "action",
+                    "play_album"
+                );
+
+                body.append(
+                    "artist",
+                    artist
+                );
+
+                body.append(
+                    "album",
+                    album
+                );
+
+                fetch("api/player.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/x-www-form-urlencoded"
+                    },
+                    body
+                })
+                    .then(response =>
+                        response.json()
+                    )
+                    .then(data => {
+                        if (!data.success) {
+                            console.error(
+                                "Play Album Failed",
+                                data
+                            );
+                        }
+                    })
+                    .catch(err => {
+                        console.error(
+                            "Play Album Failed",
+                            err
+                        );
+                    });
+            };
+
+            browser.appendChild(
+                playAlbumButton
+            );
+
             data.tracks.forEach(track => {
 
                 const row =
