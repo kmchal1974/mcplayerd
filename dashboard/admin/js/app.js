@@ -488,6 +488,12 @@ function updatePlaylist(d) {
                 ${track}
             </span>
 
+            <button
+                class="removeTrack"
+                data-remove-track="${index + 1}">
+                Remove
+            </button>
+
         </div>`;
 
     });
@@ -510,6 +516,27 @@ function updatePlaylist(d) {
 
                     track.dataset.track
 
+                );
+
+            };
+
+        });
+
+    //--------------------------------------------------------
+    // Remove Track
+    //--------------------------------------------------------
+
+    div.querySelectorAll("[data-remove-track]")
+
+        .forEach(button => {
+
+            button.onclick = event => {
+
+                event.stopPropagation();
+
+                postPlayer(
+                    "remove_index",
+                    button.dataset.removeTrack
                 );
 
             };
