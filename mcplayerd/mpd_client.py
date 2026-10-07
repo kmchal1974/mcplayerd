@@ -109,6 +109,11 @@ class McPlayerMPDClient:
         track = max(1, track)
         self.client.play(track - 1)
 
+    def remove_index(self, track: int) -> None:
+        """Remove a track from the current MPD playlist by 1-based index."""
+        track = max(1, track)
+        self.client.delete(track - 1)
+
     def list_album_artists(self) -> list[str]:
         """Return album artists from the MPD music library."""
         results = self.client.list("albumartist")
