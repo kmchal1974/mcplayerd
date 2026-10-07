@@ -167,7 +167,7 @@ McPlayer follows a sticky network policy:
 - [x] Add a selected album to the current queue
 - [x] Play a selected track immediately
 - [x] Play a selected album immediately
-- [ ] Remove an individual track from the current queue
+- [x] Remove an individual track from the current queue
 - [ ] Reorder tracks in the current queue
 - [ ] Manage the queue through McPlayerD
 
