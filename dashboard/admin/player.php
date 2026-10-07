@@ -20,6 +20,7 @@ switch ($action) {
     case "repeat":
     case "clear":
     case "playindex":
+    case "remove_index":
     case "list_artists":
     case "list_albums":
     case "list_tracks":
@@ -81,6 +82,9 @@ switch ($action) {
             $requestData["value"] = max(0, intval($value));
         }
         if ($action === "playindex") {
+            $requestData["value"] = max(1, intval($value));
+        }
+        if ($action === "remove_index") {
             $requestData["value"] = max(1, intval($value));
         }
         if ($action === "shuffle" && $value !== '') {
