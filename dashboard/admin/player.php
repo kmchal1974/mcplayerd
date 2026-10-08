@@ -21,6 +21,7 @@ switch ($action) {
     case "clear":
     case "playindex":
     case "remove_index":
+    case "move_index":
     case "list_artists":
     case "list_albums":
     case "list_tracks":
@@ -86,6 +87,12 @@ switch ($action) {
         }
         if ($action === "remove_index") {
             $requestData["value"] = max(1, intval($value));
+        }
+        if ($action === "move_index") {
+            $requestData["track"] =
+                max(1, intval($_POST["track"] ?? 1));
+            $requestData["destination"] =
+                max(1, intval($_POST["destination"] ?? 1));
         }
         if ($action === "shuffle" && $value !== '') {
             $requestData["value"] =
