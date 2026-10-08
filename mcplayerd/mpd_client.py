@@ -120,6 +120,15 @@ class McPlayerMPDClient:
         destination = max(1, destination)
         self.client.move(track - 1, destination - 1)
 
+    def list_saved_playlists(self) -> list[str]:
+        """Return the names of saved MPD playlists."""
+        results = self.client.listplaylists()
+        return [
+            item["playlist"]
+            for item in results
+            if item.get("playlist")
+        ]
+
     def list_album_artists(self) -> list[str]:
         """Return album artists from the MPD music library."""
         results = self.client.list("albumartist")
