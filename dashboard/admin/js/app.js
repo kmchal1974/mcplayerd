@@ -75,7 +75,33 @@ function postPlayer(action, value = "") {
     .catch(err => console.error(err));
 
 }
+function moveQueueTrack(track, destination) {
 
+    const body = new URLSearchParams();
+
+    body.append("action", "move_index");
+    body.append("track", track);
+    body.append("destination", destination);
+
+    return fetch("api/player.php", {
+        method: "POST",
+        headers: {
+            "Content-Type":
+                "application/x-www-form-urlencoded"
+        },
+        body: body
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.ok) {
+            console.error("Move Track Failed", data);
+        }
+        return data;
+    })
+    .catch(err => {
+        console.error("Move Track Failed", err);
+    });
+}
 //============================================================
 // Dashboard Refresh
 //============================================================
