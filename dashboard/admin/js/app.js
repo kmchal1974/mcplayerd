@@ -1297,6 +1297,7 @@ document.addEventListener(
 
         loadLibraryArtists();
 
+        loadSavedPlaylists();
     }
 
 );
@@ -1609,5 +1610,58 @@ function loadLibraryTracks(artist, album) {
 
             browser.textContent =
                 "Unable to load tracks.";
+        });
+}
+
+//============================================================
+// Saved Playlists
+//============================================================
+
+function loadSavedPlaylists() {
+
+    const container = $("saved-playlists");
+
+    if (!container) return;
+
+    postPlayer("list_saved_playlists")
+        .then(data => {
+
+            if (
+                !data ||
+                !data.success ||
+                !Array.isArray(data.playlists)
+            ) {
+                container.textContent =
+                    "Unable to load saved playlists.";
+                return;
+            }
+
+            container.innerHTML = "";
+
+            if (data.playlists.length === 0) {
+                container.textContent =
+                    "No saved playlists found.";
+                return;
+            }
+
+            data.playlists.forEach(name => {
+
+                const row = document.createElement("div");
+
+                row.className = "track";
+                row.textContent = name;
+
+                container.appendChild(row);
+            });
+        })
+        .catch(err => {
+
+            console.error(
+                "Saved Playlist Load Failed",
+                err
+            );
+
+            container.textContent =
+                "Unable to load saved playlists.";
         });
 }

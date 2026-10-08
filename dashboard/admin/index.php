@@ -95,6 +95,12 @@
                 <div id="library-browser">Loading Artists...</div>
             </div>
 
+            <!-- SAVED PLAYLISTS -->
+            <div class="card">
+                <h2>Saved Playlists</h2>
+                <div id="saved-playlists">Loading saved playlists...</div>
+            </div>
+
             <!-- LIBRARY SCAN PROGRESS -->
             <div class="card">
                 <h2>Library Scan</h2>
