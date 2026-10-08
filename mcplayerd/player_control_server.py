@@ -24,7 +24,7 @@ class PlayerControlServer:
         """Execute one player-control command."""
         action = request.get("action")
 
-        if action not in ("play", "pause", "previous", "next", "stop", "toggle", "volume", "seek", "shuffle", "repeat", "clear", "playindex", "remove_index", "move_index", "list_artists", "list_albums", "list_tracks", "add_track", "add_album", "play_track", "play_album",):
+        if action not in ("play", "pause", "previous", "next", "stop", "toggle", "volume", "seek", "shuffle", "repeat", "clear", "playindex", "remove_index", "move_index", "list_artists", "list_albums", "list_tracks", "list_saved_playlists", "add_track", "add_album", "play_track", "play_album",):
             return {
                 "ok": False,
                 "error": "Unknown action",
@@ -35,6 +35,12 @@ class PlayerControlServer:
         try:
             mpd.connect()
 
+            if action == "list_saved_playlists":
+                return {
+                    "ok": True,
+                    "action": action,
+                    "playlists": mpd.list_saved_playlists(),
+                }
             if action == "list_artists":
                 return {
                     "ok": True,
