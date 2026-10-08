@@ -147,6 +147,14 @@ switch ($action) {
             exit;
         }
 
+        if ($action === "list_saved_playlists") {
+            echo json_encode([
+                "success" => true,
+                "action" => $action,
+                "playlists" => $mcplayerResponse['playlists'] ?? []
+            ]);
+            exit;
+        }
 
         if ($action === "list_artists") {
             echo json_encode([
