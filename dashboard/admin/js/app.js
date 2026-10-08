@@ -515,6 +515,20 @@ function updatePlaylist(d) {
             </span>
 
             <button
+                class="moveTrackUp"
+                data-move-up="${index + 1}"
+                ${index === 0 ? "disabled" : ""}>
+                ↑
+            </button>
+
+            <button
+                class="moveTrackDown"
+                data-move-down="${index + 1}"
+                ${index === playlist.length - 1 ? "disabled" : ""}>
+                ↓
+            </button>
+
+            <button
                 class="removeTrack"
                 data-remove-track="${index + 1}">
                 Remove
@@ -544,6 +558,39 @@ function updatePlaylist(d) {
 
                 );
 
+            };
+
+        });
+    //--------------------------------------------------------
+    // Move Track Up
+    //--------------------------------------------------------
+
+    div.querySelectorAll("[data-move-up]")
+        .forEach(button => {
+
+            button.onclick = event => {
+                event.stopPropagation();
+
+                const track = Number(button.dataset.moveUp);
+
+                moveQueueTrack(track, track - 1);
+            };
+
+        });
+
+    //--------------------------------------------------------
+    // Move Track Down
+    //--------------------------------------------------------
+
+    div.querySelectorAll("[data-move-down]")
+        .forEach(button => {
+
+            button.onclick = event => {
+                event.stopPropagation();
+
+                const track = Number(button.dataset.moveDown);
+
+                moveQueueTrack(track, track + 1);
             };
 
         });
