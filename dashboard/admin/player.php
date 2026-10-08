@@ -22,6 +22,7 @@ switch ($action) {
     case "playindex":
     case "remove_index":
     case "move_index":
+    case "list_saved_playlists":
     case "list_artists":
     case "list_albums":
     case "list_tracks":
