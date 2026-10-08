@@ -24,7 +24,7 @@ class PlayerControlServer:
         """Execute one player-control command."""
         action = request.get("action")
 
-        if action not in ("play", "pause", "previous", "next", "stop", "toggle", "volume", "seek", "shuffle", "repeat", "clear", "playindex", "remove_index", "list_artists", "list_albums", "list_tracks", "add_track", "add_album", "play_track", "play_album",):
+        if action not in ("play", "pause", "previous", "next", "stop", "toggle", "volume", "seek", "shuffle", "repeat", "clear", "playindex", "remove_index", "move_index", "list_artists", "list_albums", "list_tracks", "add_track", "add_album", "play_track", "play_album",):
             return {
                 "ok": False,
                 "error": "Unknown action",
@@ -100,6 +100,10 @@ class PlayerControlServer:
             elif action == "remove_index":
                 track = max(1, int(request.get("value", 1)))
                 mpd.remove_index(track)
+            elif action == "move_index":
+                track = max(1, int(request.get("track", 1)))
+                destination = max(1, int(request.get("destination", 1)))
+                mpd.move_index(track, destination)
             elif action == "add_track":
                 file = str(request.get("file", ""))
                 mpd.add_track(file)
