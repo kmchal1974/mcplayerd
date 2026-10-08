@@ -114,6 +114,12 @@ class McPlayerMPDClient:
         track = max(1, track)
         self.client.delete(track - 1)
 
+    def move_index(self, track: int, destination: int) -> None:
+        """Move a track in the current MPD playlist using 1-based indexes."""
+        track = max(1, track)
+        destination = max(1, destination)
+        self.client.move(track - 1, destination - 1)
+
     def list_album_artists(self) -> list[str]:
         """Return album artists from the MPD music library."""
         results = self.client.list("albumartist")
