@@ -23,6 +23,7 @@ switch ($action) {
     case "remove_index":
     case "move_index":
     case "list_saved_playlists":
+    case "load_saved_playlist":
     case "list_artists":
     case "list_albums":
     case "list_tracks":
@@ -56,6 +57,9 @@ switch ($action) {
             "action" => $action
         ];
 
+        if ($action === "load_saved_playlist") {
+            $requestData["name"] = $value;
+        }
         if ($action === "list_albums") {
             $requestData["artist"] = $value;
         }
