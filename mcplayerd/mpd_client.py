@@ -120,6 +120,14 @@ class McPlayerMPDClient:
         destination = max(1, destination)
         self.client.move(track - 1, destination - 1)
 
+    def load_saved_playlist(self, name: str) -> None:
+        """Replace the current queue with a saved MPD playlist."""
+        if not name:
+            raise ValueError("Playlist name is required")
+
+        self.client.clear()
+        self.client.load(name)
+
     def list_saved_playlists(self) -> list[str]:
         """Return the names of saved MPD playlists."""
         results = self.client.listplaylists()
