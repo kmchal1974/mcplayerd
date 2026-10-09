@@ -173,7 +173,7 @@ McPlayer follows a sticky network policy:
 
 ### Saved Playlists
 
-- [ ] List saved playlists
+- [x] List saved playlists
 - [ ] Load a saved playlist into the queue
 - [ ] Save the current queue as a new named playlist
 - [ ] Update an existing playlist from the current queue
