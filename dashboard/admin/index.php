@@ -98,6 +98,22 @@
             <!-- SAVED PLAYLISTS -->
             <div class="card">
                 <h2>Saved Playlists</h2>
+
+                <div>
+                    <input
+                        type="text"
+                        id="new-playlist-name"
+                        placeholder="New playlist name"
+                        aria-label="New playlist name"
+                        maxlength="100"
+                    >
+                    <button id="save-playlist-btn" type="button">
+                        Save Current Queue
+                    </button>
+                </div>
+
+                <br>
+
                 <div id="saved-playlists">Loading saved playlists...</div>
             </div>
 
