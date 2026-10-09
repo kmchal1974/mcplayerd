@@ -1298,6 +1298,9 @@ document.addEventListener(
         loadLibraryArtists();
 
         loadSavedPlaylists();
+
+        initializeSavePlaylist();
+
     }
 
 );
@@ -1703,4 +1706,50 @@ function loadSavedPlaylists() {
             console.error("Saved Playlists Load Failed", err);
             container.textContent = "Unable to load saved playlists.";
         });
+}
+
+//============================================================
+// Save Current Queue as New Playlist
+//============================================================
+
+function initializeSavePlaylist() {
+    const nameInput = $("new-playlist-name");
+    const saveButton = $("save-playlist-btn");
+
+    if (!nameInput || !saveButton) return;
+
+    saveButton.onclick = () => {
+        const name = nameInput.value.trim();
+
+        if (!name) {
+            showToast("Enter a playlist name.");
+            nameInput.focus();
+            return;
+        }
+
+        saveButton.disabled = true;
+
+        postPlayer("save_new_playlist", name)
+            .then(data => {
+                if (!data || !data.success) {
+                    showToast(
+                        data?.error ||
+                        "Unable to save playlist."
+                    );
+                    console.error("Save Playlist Failed", data);
+                    return;
+                }
+
+                showToast(`Saved: ${name}`);
+                nameInput.value = "";
+                loadSavedPlaylists();
+            })
+            .catch(err => {
+                console.error("Save Playlist Failed", err);
+                showToast("Unable to save playlist.");
+            })
+            .finally(() => {
+                saveButton.disabled = false;
+            });
+    };
 }
