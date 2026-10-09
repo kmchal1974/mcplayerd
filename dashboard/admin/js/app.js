@@ -1647,21 +1647,60 @@ function loadSavedPlaylists() {
             data.playlists.forEach(name => {
 
                 const row = document.createElement("div");
-
                 row.className = "track";
-                row.textContent = name;
+
+                const label = document.createElement("span");
+                label.textContent = name;
+
+                const loadButton = document.createElement("button");
+                loadButton.textContent = "Load";
+
+                loadButton.onclick = () => {
+
+                    const confirmed = window.confirm(
+                        `Load "${name}"?\n\n` +
+                        "This will replace your current music queue."
+                    );
+
+                    if (!confirmed) return;
+
+                    loadButton.disabled = true;
+
+                    postPlayer("load_saved_playlist", name)
+                        .then(data => {
+
+                            if (!data || !data.success) {
+                                showToast("Unable to load playlist.");
+                                console.error(
+                                    "Saved Playlist Load Failed",
+                                    data
+                                );
+                                return;
+                            }
+
+                            showToast(`Loaded: ${name}`);
+                            refreshDashboard();
+                        })
+                        .catch(err => {
+                            console.error(
+                                "Saved Playlist Load Failed",
+                                err
+                            );
+                            showToast("Unable to load playlist.");
+                        })
+                        .finally(() => {
+                            loadButton.disabled = false;
+                        });
+                };
+
+                row.appendChild(label);
+                row.appendChild(loadButton);
 
                 container.appendChild(row);
             });
         })
         .catch(err => {
-
-            console.error(
-                "Saved Playlist Load Failed",
-                err
-            );
-
-            container.textContent =
-                "Unable to load saved playlists.";
+            console.error("Saved Playlists Load Failed", err);
+            container.textContent = "Unable to load saved playlists.";
         });
 }
