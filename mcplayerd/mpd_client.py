@@ -128,6 +128,20 @@ class McPlayerMPDClient:
         self.client.clear()
         self.client.load(name)
 
+    def save_new_playlist(self, name: str) -> None:
+        """Save the current queue as a new named MPD playlist."""
+        name = name.strip()
+
+        if not name:
+            raise ValueError("Playlist name is required")
+
+        if name in self.list_saved_playlists():
+            raise ValueError(
+                f"A saved playlist named '{name}' already exists"
+            )
+
+        self.client.save(name)
+
     def list_saved_playlists(self) -> list[str]:
         """Return the names of saved MPD playlists."""
         results = self.client.listplaylists()
