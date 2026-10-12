@@ -45,6 +45,7 @@ class PlayerControlServer:
             "list_saved_playlists",
             "load_saved_playlist",
             "save_new_playlist",
+            "update_saved_playlist",
             "add_track",
             "add_album",
             "play_track",
@@ -141,6 +142,9 @@ class PlayerControlServer:
             elif action == "save_new_playlist":
                 name = str(request.get("name", ""))
                 mpd.save_new_playlist(name)
+            elif action == "update_saved_playlist":
+                name = str(request.get("name", ""))
+                mpd.update_saved_playlist(name)
             elif action == "add_track":
                 file = str(request.get("file", ""))
                 mpd.add_track(file)
