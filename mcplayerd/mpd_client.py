@@ -142,6 +142,47 @@ class McPlayerMPDClient:
 
         self.client.save(name)
 
+    def update_saved_playlist(self, name: str) -> None:
+        """Replace an existing saved playlist with the current queue."""
+        import uuid
+
+        name = name.strip()
+
+        if not name:
+            raise ValueError("Playlist name is required")
+
+        if name not in self.list_saved_playlists():
+            raise ValueError(
+                f"A saved playlist named '{name}' does not exist"
+            )
+
+        temporary_name = f"mcplayer-update-{uuid.uuid4().hex}"
+
+        # Save the new contents before touching the original.
+        self.client.save(temporary_name)
+
+        try:
+            # Rename the original to a backup.
+            backup_name = f"mcplayer-backup-{uuid.uuid4().hex}"
+            self.client.rename(name, backup_name)
+
+            try:
+                # Put the new playlist under the original name.
+                self.client.rename(temporary_name, name)
+            except Exception:
+                # Restore the original if replacement fails.
+                self.client.rename(backup_name, name)
+                raise
+
+            # Replacement succeeded; remove the backup.
+            self.client.rm(backup_name)
+
+        except Exception:
+            # Clean up the temporary playlist if it still exists.
+            if temporary_name in self.list_saved_playlists():
+                self.client.rm(temporary_name)
+            raise
+
     def list_saved_playlists(self) -> list[str]:
         """Return the names of saved MPD playlists."""
         results = self.client.listplaylists()
