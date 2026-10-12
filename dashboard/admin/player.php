@@ -25,6 +25,7 @@ switch ($action) {
     case "list_saved_playlists":
     case "load_saved_playlist":
     case "save_new_playlist":
+    case "update_saved_playlist":
     case "list_artists":
     case "list_albums":
     case "list_tracks":
@@ -59,7 +60,8 @@ switch ($action) {
         ];
         if (
             $action === "load_saved_playlist" ||
-            $action === "save_new_playlist"
+            $action === "save_new_playlist" ||
+            $action === "update_saved_playlist"
         ) {
             $requestData["name"] = $value;
         }
