@@ -1739,9 +1739,52 @@ function loadSavedPlaylists() {
                         });
                 };
 
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+
+                deleteButton.onclick = () => {
+
+                    const confirmed = window.confirm(
+                        `Delete saved playlist "${name}"?\n\n` +
+                        "This permanently removes the saved playlist.\n\n" +
+                        "Your music files, current queue, and playback will not change."
+                    );
+
+                    if (!confirmed) return;
+
+                    deleteButton.disabled = true;
+
+                    postPlayer("delete_saved_playlist", name)
+                        .then(data => {
+
+                            if (!data || !data.success) {
+                                showToast("Unable to delete playlist.");
+                                console.error(
+                                    "Saved Playlist Delete Failed",
+                                    data
+                                );
+                                return;
+                            }
+
+                            showToast(`Deleted: ${name}`);
+                            loadSavedPlaylists();
+                        })
+                        .catch(err => {
+                            console.error(
+                                "Saved Playlist Delete Failed",
+                                err
+                            );
+                            showToast("Unable to delete playlist.");
+                        })
+                        .finally(() => {
+                            deleteButton.disabled = false;
+                        });
+                };
+
                 row.appendChild(label);
                 row.appendChild(loadButton);
                 row.appendChild(updateButton);
+                row.appendChild(deleteButton);
                 container.appendChild(row);
             });
         })
