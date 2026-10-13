@@ -1696,9 +1696,52 @@ function loadSavedPlaylists() {
                         });
                 };
 
+                const updateButton = document.createElement("button");
+                updateButton.textContent = "Update";
+
+                updateButton.onclick = () => {
+
+                    const confirmed = window.confirm(
+                        `Update "${name}"?\n\n` +
+                        "This will replace the saved playlist with " +
+                        "your current music queue.\n\n" +
+                        "Your current queue and playback will not change."
+                    );
+
+                    if (!confirmed) return;
+
+                    updateButton.disabled = true;
+
+                    postPlayer("update_saved_playlist", name)
+                        .then(data => {
+
+                            if (!data || !data.success) {
+                                showToast("Unable to update playlist.");
+                                console.error(
+                                    "Saved Playlist Update Failed",
+                                    data
+                                );
+                                return;
+                            }
+
+                            showToast(`Updated: ${name}`);
+                            loadSavedPlaylists();
+                        })
+                        .catch(err => {
+                            console.error(
+                                "Saved Playlist Update Failed",
+                                err
+                            );
+                            showToast("Unable to update playlist.");
+                        })
+                        .finally(() => {
+                            updateButton.disabled = false;
+                        });
+                };
+
                 row.appendChild(label);
                 row.appendChild(loadButton);
-
+                row.appendChild(updateButton);
                 container.appendChild(row);
             });
         })
