@@ -184,7 +184,7 @@ McPlayer follows a sticky network policy:
 
 - [x] Route library browsing operations through McPlayerD
 - [x] Route new library, queue, and playlist operations through McPlayerD
-- [ ] Keep RompR functional alongside the Admin dashboard
+- [x] Keep RompR functional alongside the Admin dashboard
 - [x] Avoid direct `mpc` commands for new Admin library and playlist features
 
 ### Tested
@@ -197,6 +197,6 @@ McPlayer follows a sticky network policy:
 - [x] Load a saved playlist
 - [x] Modify a loaded playlist and explicitly save the changes
 - [x] Delete a saved playlist
-- [ ] RompR remains operational
+- [x] RompR remains operational
 
 **Milestone:** v0.6.0 - Library & Playlist Management
