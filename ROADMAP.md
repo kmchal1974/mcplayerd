@@ -176,7 +176,7 @@ McPlayer follows a sticky network policy:
 - [x] List saved playlists
 - [x] Load a saved playlist into the queue
 - [x] Save the current queue as a new named playlist
-- [ ] Update an existing playlist from the current queue
+- [x] Update an existing playlist from the current queue
 - [ ] Delete a saved playlist with confirmation
 - [ ] Manage saved playlists through McPlayerD
 
