@@ -183,6 +183,20 @@ class McPlayerMPDClient:
                 self.client.rm(temporary_name)
             raise
 
+    def delete_saved_playlist(self, name: str) -> None:
+        """Delete an existing saved MPD playlist."""
+        name = name.strip()
+
+        if not name:
+            raise ValueError("Playlist name is required")
+
+        if name not in self.list_saved_playlists():
+            raise ValueError(
+                f"A saved playlist named '{name}' does not exist"
+            )
+
+        self.client.rm(name)
+
     def list_saved_playlists(self) -> list[str]:
         """Return the names of saved MPD playlists."""
         results = self.client.listplaylists()
