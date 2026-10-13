@@ -1579,7 +1579,12 @@ function loadLibraryTracks(artist, album) {
                 trackLabel.textContent =
                     `${number} ${title}`.trim();
 
-                trackLabel.onclick = () => {
+                const addButton =
+                    document.createElement("button");
+
+                addButton.textContent = "Add";
+
+                addButton.onclick = () => {
                     postPlayer(
                         "add_track",
                         track.file
@@ -1599,6 +1604,7 @@ function loadLibraryTracks(artist, album) {
                 };
 
                 row.appendChild(trackLabel);
+                row.appendChild(addButton);
                 row.appendChild(playButton);
 
                 browser.appendChild(row);
