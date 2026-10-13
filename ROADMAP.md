@@ -195,7 +195,7 @@ McPlayer follows a sticky network policy:
 - [x] Remove and reorder queued tracks
 - [x] Save a new playlist
 - [x] Load a saved playlist
-- [ ] Modify a loaded playlist and explicitly save the changes
+- [x] Modify a loaded playlist and explicitly save the changes
 - [x] Delete a saved playlist
 - [ ] RompR remains operational
 
