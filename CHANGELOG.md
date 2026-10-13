@@ -1,5 +1,52 @@
 # Changelog
 
+## v0.6.0 - Library & Playlist Management
+
+Added music library browsing, queue management, and saved playlist
+management through the McPlayerD control interface.
+
+### Added
+
+- Artist, album, and track browsing in the Admin dashboard
+- Add individual tracks to the current queue
+- Add entire albums to the current queue
+- Play individual tracks directly from the music library
+- Play entire albums directly from the music library
+- Remove individual tracks from the current queue
+- Move queued tracks up and down
+- List saved playlists
+- Load saved playlists into the current queue
+- Save the current queue as a new named playlist
+- Update existing saved playlists from the current queue
+- Delete saved playlists with confirmation
+- Visible Add button beside individual library tracks
+
+### Changed
+
+- New library, queue, and playlist operations use the McPlayerD
+  player-control interface instead of direct `mpc` commands.
+- Saved playlist updates require explicit user confirmation.
+- Saved playlist deletion requires explicit user confirmation.
+- Track titles no longer have a hidden Add action.
+
+### Verified
+
+- Browse Artist -> Album -> Tracks
+- Add individual tracks to the queue
+- Add entire albums to the queue
+- Play individual tracks
+- Play entire albums
+- Remove queued tracks
+- Move queued tracks up and down
+- Save new playlists
+- Load saved playlists
+- Modify and explicitly update saved playlists
+- Reload updated playlists and confirm changes persist
+- Delete saved playlists
+- RompR remains operational
+- RompR and the Admin dashboard control the same MPD player
+
+
 ## v0.5.0 - Player Control
 
 Moved active dashboard playback controls behind the McPlayerD local control interface.
