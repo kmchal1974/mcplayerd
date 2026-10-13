@@ -191,7 +191,7 @@ McPlayer follows a sticky network policy:
 
 - [x] Browse Artist -> Album -> Tracks from the Admin dashboard
 - [x] Build a queue from library selections
-- [ ] Play library selections from the Admin dashboard
+- [x] Play library selections from the Admin dashboard
 - [ ] Remove and reorder queued tracks
 - [x] Save a new playlist
 - [x] Load a saved playlist
