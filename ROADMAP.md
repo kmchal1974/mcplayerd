@@ -177,7 +177,7 @@ McPlayer follows a sticky network policy:
 - [x] Load a saved playlist into the queue
 - [x] Save the current queue as a new named playlist
 - [x] Update an existing playlist from the current queue
-- [ ] Delete a saved playlist with confirmation
+- [x] Delete a saved playlist with confirmation
 - [ ] Manage saved playlists through McPlayerD
 
 ### Architecture
@@ -196,7 +196,7 @@ McPlayer follows a sticky network policy:
 - [x] Save a new playlist
 - [x] Load a saved playlist
 - [ ] Modify a loaded playlist and explicitly save the changes
-- [ ] Delete a saved playlist
+- [x] Delete a saved playlist
 - [ ] RompR remains operational
 
 **Milestone:** v0.6.0 - Library & Playlist Management
