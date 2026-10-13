@@ -178,14 +178,14 @@ McPlayer follows a sticky network policy:
 - [x] Save the current queue as a new named playlist
 - [x] Update an existing playlist from the current queue
 - [x] Delete a saved playlist with confirmation
-- [ ] Manage saved playlists through McPlayerD
+- [x] Manage saved playlists through McPlayerD
 
 ### Architecture
 
 - [x] Route library browsing operations through McPlayerD
-- [ ] Route new library, queue, and playlist operations through McPlayerD
+- [x] Route new library, queue, and playlist operations through McPlayerD
 - [ ] Keep RompR functional alongside the Admin dashboard
-- [ ] Avoid direct `mpc` commands for new Admin library and playlist features
+- [x] Avoid direct `mpc` commands for new Admin library and playlist features
 
 ### Tested
 
