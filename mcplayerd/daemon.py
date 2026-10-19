@@ -89,6 +89,16 @@ def update_state(mpd: McPlayerMPDClient) -> None:
     print(f"State updated: {STATE_PATH}", flush=True)
 
 
+def run_optional_bluetooth() -> None:
+    """Run Bluetooth controls without affecting core services."""
+    try:
+        from mcplayerd.bluetooth_controller import main as run_bluetooth_controller
+
+        run_bluetooth_controller()
+    except Exception as exc:
+        print(f"Bluetooth controller unavailable: {exc}", flush=True)
+
+
 def run() -> None:
     """Run McPlayerD continuously."""
     print("McPlayerD starting", flush=True)
@@ -121,6 +131,12 @@ def run() -> None:
         name="player-control",
     )
     player_control_thread.start()
+    bluetooth_thread = threading.Thread(
+        target=run_optional_bluetooth,
+        daemon=True,
+        name="bluetooth-controller",
+    )
+    bluetooth_thread.start()
     print(
         f"NetworkManager available: {network_manager.is_available()}",
         flush=True,
