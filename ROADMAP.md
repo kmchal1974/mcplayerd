@@ -200,3 +200,61 @@ McPlayer follows a sticky network policy:
 - [x] RompR remains operational
 
 **Milestone:** v0.6.0 - Library & Playlist Management
+
+## Bluetooth Support
+
+**Milestone:** v0.7.0 - Bluetooth Support (In Progress)
+
+**Development branch:** `feature/bluetooth-v0.7.0`
+
+### Bluetooth Remote Controls
+
+- [x] Pair and trust Stadia Bluetooth controller
+- [x] Detect Stadia controller through Linux HID input
+- [x] Play/pause using the A button
+- [x] Previous/next track using D-pad left/right
+- [x] Volume up/down using D-pad up/down
+- [x] Route playback commands through McPlayerD
+- [x] Run Bluetooth controller listener in the background
+- [x] Detect controller disconnection and reconnection
+- [x] Recover automatically when BlueZ reports a connection but HID input is missing
+- [x] Limit automatic recovery attempts to prevent repeated reconnection loops
+- [x] Verify all controls after automatic HID recovery
+
+**Verified commit:** `4cfaa22` - Add limited Stadia Bluetooth HID recovery
+
+### Bluetooth Audio Output
+
+- [ ] Inspect existing Bluetooth and audio architecture
+- [ ] Determine how Bluetooth audio output will coexist with the PCM512x DAC
+- [ ] Establish safe audio-output selection and switching
+- [ ] Implement Bluetooth audio output
+- [ ] Test playback through a Bluetooth audio device
+- [ ] Verify normal DAC playback remains functional
+
+### Bluetooth Audio Input
+
+- [ ] Design Bluetooth audio input architecture
+- [ ] Implement Bluetooth audio input
+- [ ] Test Bluetooth audio input
+- [ ] Verify existing MPD playback and audio output remain functional
+
+### Bluetooth Admin Management
+
+- [ ] Display Bluetooth status in the Admin dashboard
+- [ ] Enable/disable Bluetooth
+- [ ] Scan for available Bluetooth devices
+- [ ] Display paired and available devices
+- [ ] Pair, connect, disconnect, and forget devices
+- [ ] Provide a separate enable/disable setting for Bluetooth remote controls
+- [ ] Integrate Bluetooth management with the planned Admin dashboard redesign
+
+### Architecture Requirements
+
+- Preserve existing PCM512x DAC playback.
+- Preserve MPD, RompR, and Admin dashboard functionality.
+- Keep Bluetooth operations separate from Wi-Fi network management.
+- Avoid unnecessary changes to existing networking and playback services.
+- Support user-directed Bluetooth device management.
+- Implement and test remote controls before audio output, then audio input.
+- Keep Bluetooth functionality optional so failures do not stop McPlayerD.
