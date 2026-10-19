@@ -8,13 +8,14 @@ Controls:
     D-pad Up    Volume +5
     D-pad Down  Volume -5
 
-The listener waits for the controller and recovers when its
-Linux input device disappears and later returns.
+The listener detects controller input devices and attempts limited
+HID recovery when BlueZ reports a connected controller without one.
 """
 
 import json
 import select
 import socket
+import subprocess
 import time
 
 from evdev import InputDevice, ecodes, list_devices
@@ -26,6 +27,12 @@ CONTROL_SOCKET = "/run/mcplayer/player-control.sock"
 VOLUME_STEP = 5
 RECONNECT_DELAY = 3
 INPUT_POLL_INTERVAL = 1
+
+STADIA_DBUS_PATH = "/org/bluez/hci0/dev_CA_1C_4C_FE_19_FD"
+HID_GRACE_PERIOD = 15
+RECOVERY_COOLDOWN = 30
+MAX_RECOVERY_ATTEMPTS = 2
+DBUS_TIMEOUT = 12
 
 
 def find_stadia_controller():
@@ -159,29 +166,6 @@ def handle_controller_event(event):
         print(f"Player control error: {exc}", flush=True)
 
 
-def listen_to_controller(controller):
-    """Process events until the controller disappears."""
-    print(f"Connected to {controller.name}", flush=True)
-
-    while True:
-        readable, _, _ = select.select(
-            [controller],
-            [],
-            [],
-            INPUT_POLL_INTERVAL,
-        )
-
-        if not readable:
-            # Detect device removal even when no buttons are pressed.
-            if controller.path not in find_matching_devices():
-                raise OSError("Stadia input device disappeared")
-            continue
-
-        for event in controller.read():
-            handle_controller_event(event)
-
-
-
 def find_matching_devices():
     """Return paths of currently available Stadia input devices."""
     paths = []
@@ -201,25 +185,180 @@ def find_matching_devices():
     return paths
 
 
+def listen_to_controller(controller):
+    """Process events until the controller disappears."""
+    print(f"Connected to {controller.name}", flush=True)
+
+    while True:
+        readable, _, _ = select.select(
+            [controller],
+            [],
+            [],
+            INPUT_POLL_INTERVAL,
+        )
+
+        if not readable:
+            if controller.path not in find_matching_devices():
+                raise OSError("Stadia input device disappeared")
+            continue
+
+        for event in controller.read():
+            handle_controller_event(event)
+
+
+def dbus_device_call(method):
+    """Call a BlueZ device method with a bounded timeout."""
+    command = [
+        "busctl",
+        "--allow-interactive-authorization=no",
+        "--timeout=10s",
+        "call",
+        "org.bluez",
+        STADIA_DBUS_PATH,
+        "org.bluez.Device1",
+        method,
+    ]
+
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=DBUS_TIMEOUT,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print(f"Bluetooth D-Bus {method} failed: {exc}", flush=True)
+        return False
+
+    if result.returncode != 0:
+        message = result.stderr.strip() or result.stdout.strip()
+        print(f"Bluetooth D-Bus {method} failed: {message}", flush=True)
+        return False
+
+    return True
+
+
+def bluez_controller_connected():
+    """Check whether BlueZ reports the Stadia controller connected."""
+    command = [
+        "busctl",
+        "--allow-interactive-authorization=no",
+        "--timeout=5s",
+        "get-property",
+        "org.bluez",
+        STADIA_DBUS_PATH,
+        "org.bluez.Device1",
+        "Connected",
+    ]
+
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=7,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        print(f"Bluetooth status check failed: {exc}", flush=True)
+        return False
+
+    if result.returncode != 0:
+        return False
+
+    return result.stdout.strip() == "b true"
+
+
+def recover_stadia_hid():
+    """Attempt to recreate a missing Stadia HID input device."""
+    print("Stadia HID missing; attempting Bluetooth recovery", flush=True)
+
+    if not dbus_device_call("Disconnect"):
+        return False
+
+    time.sleep(2)
+
+    if not dbus_device_call("Connect"):
+        return False
+
+    print("Stadia Bluetooth reconnect requested", flush=True)
+    return True
+
+
 def main():
-    """Continuously wait for and listen to the Stadia controller."""
+    """Listen for the Stadia controller and recover missing HID input."""
     print("McPlayerD Bluetooth controller listener starting", flush=True)
+
+    missing_since = None
+    last_recovery = None
+    recovery_attempts = 0
 
     while True:
         controller = find_stadia_controller()
 
-        if controller is None:
+        if controller is not None:
+            missing_since = None
+            last_recovery = None
+            recovery_attempts = 0
+
+            try:
+                listen_to_controller(controller)
+            except (OSError, ValueError) as exc:
+                print(f"Controller disconnected: {exc}", flush=True)
+            finally:
+                controller.close()
+
             time.sleep(RECONNECT_DELAY)
             continue
 
-        try:
-            listen_to_controller(controller)
+        if not bluez_controller_connected():
+            missing_since = None
+            time.sleep(RECONNECT_DELAY)
+            continue
 
-        except OSError as exc:
-            print(f"Controller disconnected: {exc}", flush=True)
+        now = time.monotonic()
 
-        finally:
-            controller.close()
+        if missing_since is None:
+            missing_since = now
+            print(
+                "Stadia connected in BlueZ; waiting for HID input",
+                flush=True,
+            )
+
+        grace_elapsed = now - missing_since >= HID_GRACE_PERIOD
+        cooldown_elapsed = (
+            last_recovery is None
+            or now - last_recovery >= RECOVERY_COOLDOWN
+        )
+
+        if (
+            grace_elapsed
+            and cooldown_elapsed
+            and recovery_attempts < MAX_RECOVERY_ATTEMPTS
+        ):
+            recovery_attempts += 1
+            last_recovery = now
+
+            print(
+                f"Stadia HID recovery attempt "
+                f"{recovery_attempts}/{MAX_RECOVERY_ATTEMPTS}",
+                flush=True,
+            )
+            recover_stadia_hid()
+
+        elif (
+            grace_elapsed
+            and recovery_attempts >= MAX_RECOVERY_ATTEMPTS
+        ):
+            # Avoid repeating this warning every three seconds.
+            if recovery_attempts == MAX_RECOVERY_ATTEMPTS:
+                print(
+                    "Stadia HID recovery limit reached; "
+                    "waiting for controller state to change",
+                    flush=True,
+                )
+                recovery_attempts += 1
 
         time.sleep(RECONNECT_DELAY)
 
