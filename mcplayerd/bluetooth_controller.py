@@ -7,10 +7,15 @@ Controls:
     D-pad Right Next track
     D-pad Up    Volume +5
     D-pad Down  Volume -5
+
+The listener waits for the controller and recovers when its
+Linux input device disappears and later returns.
 """
 
 import json
+import select
 import socket
+import time
 
 from evdev import InputDevice, ecodes, list_devices
 
@@ -19,21 +24,28 @@ from mcplayerd.mpd_client import McPlayerMPDClient
 
 CONTROL_SOCKET = "/run/mcplayer/player-control.sock"
 VOLUME_STEP = 5
+RECONNECT_DELAY = 3
+INPUT_POLL_INTERVAL = 1
 
 
 def find_stadia_controller():
-    """Find the Stadia controller without hardcoding an event number."""
+    """Find an available Stadia input device."""
     for path in list_devices():
-        device = InputDevice(path)
+        try:
+            device = InputDevice(path)
+        except OSError:
+            continue
+
         if device.name.startswith("Stadia"):
             return device
+
         device.close()
 
     return None
 
 
 def send_player_command(action, value=None):
-    """Send a command to McPlayerD's existing player-control socket."""
+    """Send a command through McPlayerD's player-control socket."""
     request = {"action": action}
 
     if value is not None:
@@ -56,7 +68,7 @@ def send_player_command(action, value=None):
 
 
 def get_current_volume():
-    """Read the current MPD volume without changing playback."""
+    """Read MPD volume without changing playback."""
     mpd = McPlayerMPDClient()
 
     try:
@@ -81,7 +93,7 @@ def get_current_volume():
 
 
 def change_volume(direction):
-    """Adjust volume by one step, staying within 0-100."""
+    """Adjust volume by one step, limited to 0-100."""
     current_volume = get_current_volume()
     new_volume = max(
         0,
@@ -89,17 +101,16 @@ def change_volume(direction):
     )
 
     if new_volume == current_volume:
-        print(f"Volume already at {current_volume}%")
+        print(f"Volume already at {current_volume}%", flush=True)
         return
 
     result = send_player_command("volume", new_volume)
     actual_volume = result["playback"]["volume"]
-    print(f"Volume: {actual_volume}%")
+    print(f"Volume: {actual_volume}%", flush=True)
 
 
 def get_controller_action(event):
-    """Translate Stadia controller events into player actions."""
-
+    """Translate Stadia input events into player actions."""
     if event.type == ecodes.EV_KEY:
         if event.code == ecodes.BTN_SOUTH and event.value == 1:
             return "toggle"
@@ -120,56 +131,101 @@ def get_controller_action(event):
     return None
 
 
-def main():
-    controller = find_stadia_controller()
+def handle_controller_event(event):
+    """Execute a supported Stadia controller command."""
+    action = get_controller_action(event)
 
-    if controller is None:
-        print("Stadia controller not found.")
+    if action is None:
         return
 
-    print(f"Connected to {controller.name}")
-    print("A: Play/Pause")
-    print("D-pad Left/Right: Previous/Next")
-    print("D-pad Up/Down: Volume Up/Down")
-    print("Press Ctrl+C to exit.")
-
     try:
-        for event in controller.read_loop():
-            action = get_controller_action(event)
+        if action == "volume_up":
+            change_volume(1)
 
-            if action is None:
-                continue
+        elif action == "volume_down":
+            change_volume(-1)
 
-            try:
-                if action == "volume_up":
-                    change_volume(1)
+        else:
+            result = send_player_command(action)
+            print(f"Controller command: {action}", flush=True)
 
-                elif action == "volume_down":
-                    change_volume(-1)
+            if action == "toggle":
+                print(
+                    f"Playback: {result['playback']['state']}",
+                    flush=True,
+                )
 
-                else:
-                    result = send_player_command(action)
-                    print(f"Controller command: {action}")
+    except (OSError, ValueError, KeyError, RuntimeError) as exc:
+        print(f"Player control error: {exc}", flush=True)
 
-                    if action == "toggle":
-                        print(
-                            f"Playback: {result['playback']['state']}"
-                        )
 
-            except (
-                OSError,
-                ValueError,
-                KeyError,
-                RuntimeError,
-            ) as exc:
-                print(f"Player control error: {exc}")
+def listen_to_controller(controller):
+    """Process events until the controller disappears."""
+    print(f"Connected to {controller.name}", flush=True)
 
-    except KeyboardInterrupt:
-        print("\nBluetooth controller test stopped.")
+    while True:
+        readable, _, _ = select.select(
+            [controller],
+            [],
+            [],
+            INPUT_POLL_INTERVAL,
+        )
 
-    finally:
-        controller.close()
+        if not readable:
+            # Detect device removal even when no buttons are pressed.
+            if controller.path not in find_matching_devices():
+                raise OSError("Stadia input device disappeared")
+            continue
+
+        for event in controller.read():
+            handle_controller_event(event)
+
+
+
+def find_matching_devices():
+    """Return paths of currently available Stadia input devices."""
+    paths = []
+
+    for path in list_devices():
+        try:
+            device = InputDevice(path)
+        except OSError:
+            continue
+
+        try:
+            if device.name.startswith("Stadia"):
+                paths.append(path)
+        finally:
+            device.close()
+
+    return paths
+
+
+def main():
+    """Continuously wait for and listen to the Stadia controller."""
+    print("McPlayerD Bluetooth controller listener starting", flush=True)
+
+    while True:
+        controller = find_stadia_controller()
+
+        if controller is None:
+            time.sleep(RECONNECT_DELAY)
+            continue
+
+        try:
+            listen_to_controller(controller)
+
+        except OSError as exc:
+            print(f"Controller disconnected: {exc}", flush=True)
+
+        finally:
+            controller.close()
+
+        time.sleep(RECONNECT_DELAY)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nBluetooth controller listener stopped.")
