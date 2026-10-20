@@ -1,5 +1,26 @@
 # McPlayer Roadmap
 
+**Project:** McPlayerD — Raspberry Pi Music Player
+**Repository:** https://github.com/kmchal1974/mcplayerd
+**Roadmap updated:** October 20, 2026
+**Latest stable release:** v0.6.0 (`b9fb812`)
+**Development policy:** GitHub is the source of truth. Develop on feature branches, verify changes before merging, and do not treat unfinished work as released.
+
+## Milestone Overview
+
+| Milestone | Scope | Status |
+| --- | --- | --- |
+| v0.1.0 | Daemon Foundation | Complete |
+| v0.2.0 | Network Observation | Complete |
+| v0.4.0 | Network Resilience and Wi-Fi Management | Complete |
+| v0.5.0 | Player Control | Complete |
+| v0.6.0 | Library & Playlist Management | **Stable release** |
+| v0.7.0 | Bluetooth Support | Remote controls working; audio output shelved; **not released** |
+| v0.8.0 | Backup & Recovery | Planned / development track |
+| Cassette Admin interface | Visual redesign and music browsing improvements | Separate development track; release number TBD |
+| v0.9.0 | Plugins | Proposed |
+| v0.10.0 | OTA Updates | Proposed |
+
 ## Phase 1
 
 - [x] Dashboard
@@ -10,11 +31,10 @@
 - [x] mcplayerd
 - [x] Smart Networking
 - [x] Offline Mode
-- [ ] Bluetooth
+- [ ] Bluetooth (full scope not complete; remote controls working)
 - [ ] Backup
 - [ ] Plugins
 - [ ] OTA Updates
-
 
 ## McPlayerD Daemon
 
@@ -27,7 +47,6 @@
 - [x] Recover automatically after reboot
 
 **Milestone:** v0.1.0 - Daemon Foundation
-
 
 ## Network Observation
 
@@ -52,7 +71,6 @@
 - [x] Explicitly connect to a selected saved network
 - [x] Recover from failed network connection attempts
 - [x] Keep MPD, RompR, dashboard, and SSH usable while offline through fallback AP
-
 
 ## Wi-Fi Management
 
@@ -106,7 +124,6 @@ McPlayer follows a sticky network policy:
 - [x] Browser network control remains available after network switching
 
 **Known-good commit:** `7d40c53` - Add browser WiFi management
-
 
 ## Remaining Network Work
 
@@ -203,11 +220,11 @@ McPlayer follows a sticky network policy:
 
 ## Bluetooth Support
 
-**Milestone:** v0.7.0 - Bluetooth Support (In Progress)
-
+**Milestone:** v0.7.0 - Bluetooth Support (**partially working; paused; not released**)
 **Development branch:** `feature/bluetooth-v0.7.0`
+**Status review:** October 19, 2026
 
-### Bluetooth Remote Controls
+### Bluetooth Remote Controls — Working
 
 - [x] Pair and trust Stadia Bluetooth controller
 - [x] Detect Stadia controller through Linux HID input
@@ -220,26 +237,57 @@ McPlayer follows a sticky network policy:
 - [x] Recover automatically when BlueZ reports a connection but HID input is missing
 - [x] Limit automatic recovery attempts to prevent repeated reconnection loops
 - [x] Verify all controls after automatic HID recovery
+- [x] Re-test Stadia controller successfully after October 19 Bluetooth audio troubleshooting
 
-**Verified commit:** `4cfaa22` - Add limited Stadia Bluetooth HID recovery
+**Verified controller commit previously documented:** `4cfaa22` - Add limited Stadia Bluetooth HID recovery.
+**Controller:** `Stadia9NZK-19fd` — paired, bonded, trusted, not blocked; HID recognized.
+**Decision:** Preserve working controller implementation and button mappings. Bluetooth audio output need not be enabled for the controller to work.
 
-### Bluetooth Audio Output
+### Bluetooth Audio Output — Experimental / Shelved
 
-- [ ] Inspect existing Bluetooth and audio architecture
-- [ ] Determine how Bluetooth audio output will coexist with the PCM512x DAC
-- [ ] Establish safe audio-output selection and switching
-- [ ] Implement Bluetooth audio output
-- [ ] Test playback through a Bluetooth audio device
-- [ ] Verify normal DAC playback remains functional
+- [x] Inspect Bluetooth and audio architecture during troubleshooting
+- [x] Configure BlueALSA A2DP source and sink
+- [x] Configure and test an MPD Bluetooth Audio output
+- [x] Test JBL Vibe Beam earbuds and onn. Rugged Speaker M
+- [x] Test direct ALSA playback independently of MPD
+- [x] Test playback with DAC and WAN outputs temporarily disabled
+- [x] Investigate buffering, SBC bitrate, 44.1/48 kHz audio, Wi-Fi coexistence, system resources, firmware, drivers, and transport logs
+- [x] Restore BlueALSA override file to the standard A2DP source/sink configuration
+- [x] Leave Bluetooth Audio MPD output disabled
+- [ ] Establish reliable, uninterrupted Bluetooth audio playback
+- [ ] Establish safe, tested audio-output selection and switching
+- [ ] Verify normal DAC playback with a final listening test
 
-### Bluetooth Audio Input
+**Finding:** Playback was choppy with both Bluetooth devices. Direct ALSA playback was also choppy, so the problem is not isolated to MPD. Lower SBC bitrate and 44.1 kHz source audio improved some tests without resolving the problem. Forced 44.1 kHz negotiation was achieved but also produced a stalled, silent test. Inspected logs showed successful codec negotiation without an explicit transport error. CPU and memory checks did not show obvious exhaustion. **Root cause is undetermined.**
+
+**Decision:** Shelve Bluetooth audio output rather than risk the working DAC, networking, or remote controls. An external USB Bluetooth adapter is a possible future experiment; it has **not** been tested.
+
+**Final verified `mpc outputs` status:**
+
+| MPD output | State |
+| --- | --- |
+| Output 1 — IQaudIO DAC | Enabled |
+| Output 2 — WAN Stream | Enabled |
+| Output 3 — Bluetooth Audio | Disabled |
+
+**BlueALSA override:** `/etc/systemd/system/bluealsa.service.d/override.conf` contains:
+
+```ini
+[Service]
+ExecStart=
+ExecStart=/usr/bin/bluealsa -p a2dp-source -p a2dp-sink
+```
+
+Experimental `--sbc-quality=low` and `--a2dp-force-audio-cd` options were removed from the file. **BlueALSA was not restarted after the restoration**, so the file's settings will take effect at its next restart. `bluealsa-aplay` remains intentionally disabled. The observed `hciuart.service` state of `inactive (dead)` was not established as a fault and should not be changed without evidence.
+
+### Bluetooth Audio Input — Deferred
 
 - [ ] Design Bluetooth audio input architecture
 - [ ] Implement Bluetooth audio input
 - [ ] Test Bluetooth audio input
 - [ ] Verify existing MPD playback and audio output remain functional
 
-### Bluetooth Admin Management
+### Bluetooth Admin Management — Future
 
 - [ ] Display Bluetooth status in the Admin dashboard
 - [ ] Enable/disable Bluetooth
@@ -249,12 +297,127 @@ McPlayer follows a sticky network policy:
 - [ ] Provide a separate enable/disable setting for Bluetooth remote controls
 - [ ] Integrate Bluetooth management with the planned Admin dashboard redesign
 
-### Architecture Requirements
+### Architecture Requirements and Release Safeguards
 
 - Preserve existing PCM512x DAC playback.
-- Preserve MPD, RompR, and Admin dashboard functionality.
+- Preserve MPD, RompR, Admin dashboard, WAN streaming, SSH, Wi-Fi, fallback AP, and Force AP Mode.
 - Keep Bluetooth operations separate from Wi-Fi network management.
-- Avoid unnecessary changes to existing networking and playback services.
+- Avoid unnecessary changes to Broadcom firmware, Bluetooth UART, Wi-Fi drivers, and networking services.
 - Support user-directed Bluetooth device management.
-- Implement and test remote controls before audio output, then audio input.
-- Keep Bluetooth functionality optional so failures do not stop McPlayerD.
+- Keep Bluetooth optional so failures do not stop McPlayerD.
+- Preserve the development order: remote controls, then audio output, then audio input, if work resumes.
+- [ ] Confirm DAC playback with an actual listening test.
+- [ ] Verify current Bluetooth branch, clean working tree, and controller code pushed to GitHub.
+- [ ] Review any tracked audio experiments before merging.
+- [ ] Do not mark v0.7.0 released or merge unfinished Bluetooth audio into stable v0.6.0.
+
+## Backup & Recovery
+
+**Planned milestone:** v0.8.0 — Backup & Recovery
+**Development track:** `feature/backup-v0.8.0` (verify branch state before editing)
+
+Three **distinct deliverables** are required; a personal backup is not a public installer.
+
+### 1. Personal Configuration Backup
+
+- [ ] Inventory configuration and user data required to restore a personal McPlayerD installation
+- [ ] Back up McPlayerD settings, MPD configuration, playlists, and relevant playback state
+- [ ] Back up applicable RompR preferences and user data safely
+- [ ] Include network profiles and other personal configuration only in the private backup
+- [ ] Protect passwords, Wi-Fi credentials, and other secrets in storage and during export
+- [ ] Exclude music files and regenerable caches by default
+- [ ] Provide verification and a documented restore procedure
+- [ ] Test restoring onto a suitable installation
+
+### 2. Full SD-Card Image Backup
+
+- [ ] Define a full-card image workflow for disaster recovery
+- [ ] Include operating system, installed software, configuration, and music
+- [ ] Plan for the capacity and storage requirements of a large microSD card
+- [ ] Document image creation, integrity verification, and restoration
+- [ ] Test that a restored image can boot and operate
+- [ ] Clearly label full images as **private** because they can contain personal credentials
+
+### 3. Clean Distributable Installation
+
+- [ ] Build a reproducible installation image or package for other users
+- [ ] Exclude the original owner's accounts, passwords, saved Wi-Fi networks, SSH keys, tokens, and machine-specific secrets
+- [ ] On first boot, offer a temporary setup access point when needed
+- [ ] Provide browser-based first-run setup accessible from a phone or computer
+- [ ] Require the new owner to create their own username and password
+- [ ] Let the new owner select Wi-Fi and enter their own network password
+- [ ] Complete initial setup without requiring Linux command-line access
+- [ ] Secure or retire temporary setup credentials after provisioning
+- [ ] Verify no original owner's personal data survives in the distributable output
+- [ ] Test the clean installation on a freshly prepared card/device
+
+### Backup Development Safeguards
+
+- Do not upload private backups, credentials, or full personal SD images to public GitHub.
+- Do not alter the stable player's data or configuration during initial inventory work.
+- Implement and verify one small step at a time; keep recovery testing separate from normal playback.
+
+## Cassette-Themed Admin Interface
+
+**Development track:** `feature/cassette-skin-v1` (separate Git worktree)
+**Milestone/version:** To be determined; do not mark complete until tested.
+
+### Cassette Deck Design
+
+- [ ] Design a cassette tape recorder viewed from above
+- [ ] Place current track and album information in the upper speaker-grille area
+- [ ] Display album artwork in the center of the cassette
+- [ ] Animate cassette reels during playback and stop them when playback stops
+- [ ] Provide cassette-deck-inspired playback controls
+- [ ] Make the design responsive on phones, tablets, and desktop browsers
+- [ ] Let the large cassette deck scroll out of view on phones while keeping a compact playback bar available
+- [ ] Keep an optional VU-meter control in the design; real audio-driven meters are **not** a v1.0 blocker
+
+### Music Browsing and Navigation
+
+- [ ] Preserve artist → album → tracks browsing
+- [ ] Add filesystem folder browsing, similar to RompR, without forcing genre-based navigation
+- [ ] Add collapsible/expandable Music, Folder, and Playlist sections
+- [ ] Add Back/breadcrumb navigation when drilling into artists, albums, and folders
+- [ ] Allow adding individual songs and complete albums to the queue
+- [ ] Keep saved playlists and queue controls accessible
+- [ ] Preserve existing McPlayerD player-control architecture and RompR compatibility
+
+### Admin Sections
+
+- [ ] Music
+- [ ] Setup
+- [ ] Bluetooth
+- [ ] Network
+- [ ] System Controls
+
+**Safeguard:** Develop and test the cassette interface independently of the Bluetooth and Backup branches. Do not imply the skin is already implemented or released.
+
+## Plugins
+
+**Proposed milestone:** v0.9.0 — Plugins
+
+- [ ] Define plugin interfaces and lifecycle
+- [ ] Decide how plugins are installed, enabled, disabled, and updated
+- [ ] Isolate plugin failures from core music playback and networking
+- [ ] Define plugin permissions and security boundaries
+- [ ] Create a small example plugin and test it
+
+## OTA Updates
+
+**Proposed milestone:** v0.10.0 — OTA Updates
+
+- [ ] Design a safe update mechanism using verified releases
+- [ ] Protect user settings, playlists, and network configuration during updates
+- [ ] Provide clear update status and failure reporting in the Admin dashboard
+- [ ] Plan rollback or recovery from interrupted/failed updates
+- [ ] Test updates and recovery before offering them to users
+
+## Development and Release Rules
+
+- GitHub is the source of truth; use separate branches for unfinished features.
+- Review `git status`, current branch, and diffs before committing or merging.
+- Test changes on the Raspberry Pi before declaring a release complete.
+- Preserve stable v0.6.0 while Bluetooth, Backup, and Cassette work remain in development.
+- Never commit private network profiles, credentials, tokens, or personal backup images.
+- Do not treat roadmap checkboxes or a documentation commit as proof that hardware testing, a merge, or a release occurred.
