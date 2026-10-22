@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.7.0 - Bluetooth Remote Control Support
+
+Added Bluetooth game-controller support for controlling McPlayerD playback.
+
+### Added
+
+- Google Stadia Bluetooth controller support using Python evdev
+- A button toggles play/pause
+- D-pad Left selects the previous track
+- D-pad Right selects the next track
+- D-pad Up increases volume by 5%
+- D-pad Down decreases volume by 5%
+- Bluetooth controller listener starts automatically with McPlayerD
+- Automatic detection of Stadia HID input devices
+- Reconnection handling after controller disconnection
+- Limited HID recovery when BlueZ reports a connected controller
+  but the input device is unavailable
+
+### Changed
+
+- Bluetooth remote control runs in an optional background thread
+  independently of core playback and networking services.
+- Controller commands use the existing McPlayerD player-control interface.
+
+### Verified
+
+- Stadia controller paired and trusted
+- Play/pause, previous/next, and volume controls working
+- Controller reconnection and HID recovery tested
+- McPlayerD service active and enabled
+- Wired DAC playback operational
+- No Bluetooth errors reported in the current daemon logs
+
+### Deferred
+
+- Bluetooth audio output remains experimental due to choppy playback.
+- Bluetooth audio input has not been implemented.
+- Bluetooth device management in the Admin dashboard remains planned.
+
 ## v0.6.0 - Library & Playlist Management
 
 Added music library browsing, queue management, and saved playlist
