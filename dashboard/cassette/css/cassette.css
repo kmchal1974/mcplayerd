@@ -111,6 +111,8 @@ button {
     font-size: 13px;
 }
 
+
+
 /* Cassette compartment */
 
 .cassette-compartment {
@@ -118,6 +120,92 @@ button {
     padding: 22px;
     border: 5px solid #171717;
     border-radius: 16px;
+/* =========================================================
+   Cassette Window — Vintage Recorder Design B
+   ========================================================= */
+
+.cassette-compartment {
+    position: relative;
+    background:
+        linear-gradient(
+            145deg,
+            #0b0b0b 0%,
+            #262626 50%,
+            #090909 100%
+        );
+    border: 7px solid #171717;
+    border-radius: 18px;
+    box-shadow:
+        inset 0 12px 22px rgba(0, 0, 0, .95),
+        inset 0 -3px 8px rgba(255, 255, 255, .12),
+        0 2px 2px rgba(255, 255, 255, .12);
+}
+
+.cassette-tape {
+    background:
+        linear-gradient(
+            160deg,
+            #39342e 0%,
+            #171717 55%,
+            #080808 100%
+        );
+    border: 5px solid #090909;
+    border-radius: 12px;
+    box-shadow:
+        inset 0 0 0 2px #666056,
+        inset 0 8px 20px rgba(0, 0, 0, .9);
+}
+
+.tape-label {
+    top: 50%;
+    width: 155px;
+    height: 155px;
+    transform: translate(-50%, -50%);
+    border: 5px solid #d7c7a7;
+    border-radius: 4px;
+    box-shadow:
+        0 0 0 5px #242424,
+        0 5px 18px rgba(0, 0, 0, .9);
+}
+
+.tape-reels {
+    top: 50%;
+    width: 75%;
+    transform: translate(-50%, -50%);
+}
+
+.reel {
+    width: 105px;
+    height: 105px;
+    border: 12px solid #111;
+    background:
+        repeating-conic-gradient(
+            #d6d0bf 0deg 25deg,
+            #666 25deg 50deg,
+            #252525 50deg 60deg
+        );
+    box-shadow:
+        0 0 0 5px #080808,
+        0 0 0 8px #777;
+}
+
+@media (max-width: 600px) {
+    .tape-label {
+        width: 105px;
+        height: 105px;
+    }
+
+    .reel {
+        width: 62px;
+        height: 62px;
+        border-width: 8px;
+    }
+
+    .tape-reels {
+        width: 92%;
+    }
+}
+
     background: #202020;
     box-shadow: inset 0 8px 18px #000;
 }
