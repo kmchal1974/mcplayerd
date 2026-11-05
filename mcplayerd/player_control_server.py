@@ -42,6 +42,7 @@ class PlayerControlServer:
             "list_artists",
             "list_albums",
             "list_tracks",
+            "list_directory",
             "list_saved_playlists",
             "load_saved_playlist",
             "save_new_playlist",
@@ -94,6 +95,14 @@ class PlayerControlServer:
                         album_artist,
                         album,
                     ),
+                }
+            if action == "list_directory":
+                path = str(request.get("path", ""))
+                return {
+                    "ok": True,
+                    "action": action,
+                    "path": path,
+                    "entries": mpd.list_directory(path),
                 }
             if action == "play":
                 mpd.play()

@@ -88,17 +88,15 @@
             <h2>Music Library</h2>
 
             <nav class="music-tabs">
-                <button>Folders</button>
-                <button>Artists</button>
+                <button>Folders</button><button id="folders-tab" type="button">Folders</button>
+                <button id="artists-tab" type="button">Artists</button>
                 <button>Albums</button>
                 <button>Songs</button>
             </nav>
-
-            <div class="music-browser">
-                Music browser coming soon.
-            </div>
         </div>
-
+        <div id="music-browser" class="music-browser">
+            Select Artists to browse your music library.
+        </div>
     </section>
 
 </main>

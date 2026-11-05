@@ -206,6 +206,38 @@ class McPlayerMPDClient:
             if item.get("playlist")
         ]
 
+    def list_directory(self, path: str = "") -> list[dict]:
+        """Return folders and tracks within an MPD music directory."""
+        results = self.client.lsinfo(path)
+
+        entries = []
+
+        for item in results:
+            if "directory" in item:
+                entries.append({
+                    "type": "directory",
+                    "name": item["directory"].rsplit("/", 1)[-1],
+                    "path": item["directory"],
+                })
+
+            elif "file" in item:
+                entries.append({
+                    "type": "file",
+                    "name": item["file"].rsplit("/", 1)[-1],
+                    "path": item["file"],
+                    "title": item.get("title", ""),
+                    "artist": item.get("artist", ""),
+                })
+
+        entries.sort(
+            key=lambda entry: (
+                entry["type"] != "directory",
+                entry["name"].lower(),
+            )
+        )
+
+        return entries
+
     def list_album_artists(self) -> list[str]:
         """Return album artists from the MPD music library."""
         results = self.client.list("albumartist")
