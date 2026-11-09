@@ -260,6 +260,53 @@ class McPlayerMPDClient:
             if item.get("album")
         ]
 
+    def list_all_albums(self) -> list[dict]:
+        """Return regular albums and grouped compilation albums."""
+        regular_groups = set()
+        compilation_groups = {}
+
+        for track in self.client.listallinfo():
+            path = track.get("file", "")
+            album = track.get("album", "")
+
+            if not path or not album:
+                continue
+
+            if path.startswith("Compilations/"):
+                directory = path.rsplit("/", 1)[0]
+                key = (album, directory)
+
+                if key not in compilation_groups:
+                    compilation_groups[key] = {
+                        "album": album,
+                        "artist": "Various Artists",
+                        "directory": directory,
+                        "compilation": True,
+                    }
+            else:
+                artist = track.get("albumartist", "")
+                regular_groups.add((album, artist))
+
+        albums = [
+            {
+                "album": album,
+                "artist": artist,
+                "compilation": False,
+            }
+            for album, artist in regular_groups
+        ]
+
+        albums.extend(compilation_groups.values())
+
+        albums.sort(
+            key=lambda item: (
+                item["album"].lower(),
+                item["artist"].lower(),
+            )
+        )
+
+        return albums
+
     def list_album_tracks(
         self,
         album_artist: str,
@@ -272,6 +319,22 @@ class McPlayerMPDClient:
             "album",
             album,
         )
+
+    def list_compilation_tracks(
+        self,
+        album: str,
+        directory: str,
+    ) -> list[dict]:
+        """Return compilation tracks matching album and directory."""
+        tracks = self.client.find("album", album)
+
+        prefix = directory.rstrip("/") + "/"
+
+        return [
+            track
+            for track in tracks
+            if track.get("file", "").startswith(prefix)
+        ]
 
     def add_track(self, file: str) -> None:
         """Add a music library track to the current MPD playlist."""
@@ -287,11 +350,26 @@ class McPlayerMPDClient:
         self,
         album_artist: str,
         album: str,
+        directory: str = "",
     ) -> None:
-        """Add an album from the music library to the current MPD playlist."""
-        tracks = self.list_album_tracks(
-            album_artist,
-            album,
+        """Add a regular album or compilation to the MPD queue."""
+        if directory:
+            tracks = self.list_compilation_tracks(
+                album,
+                directory,
+            )
+        else:
+            tracks = self.list_album_tracks(
+                album_artist,
+                album,
+            )
+
+        tracks.sort(
+            key=lambda track: (
+                int(str(track.get("disc", "1")).split("/")[0] or "1"),
+                int(str(track.get("track", "0")).split("/")[0] or "0"),
+                track.get("file", ""),
+            )
         )
 
         for track in tracks:
@@ -303,6 +381,7 @@ class McPlayerMPDClient:
         self,
         album_artist: str,
         album: str,
+        directory: str = "",
     ) -> None:
         """Add an album to the queue and play it immediately."""
         playlist_before = self.client.playlistinfo()
@@ -311,6 +390,11 @@ class McPlayerMPDClient:
         self.add_album(
             album_artist,
             album,
+            directory,
         )
 
-        self.client.play(start_index)
+        playlist_after = self.client.playlistinfo()
+
+        if len(playlist_after) > start_index:
+            self.client.play(start_index)
+            

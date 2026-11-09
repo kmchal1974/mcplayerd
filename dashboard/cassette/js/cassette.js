@@ -138,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
 const artistsTab = document.getElementById("artists-tab");
 const foldersTab = document.getElementById("folders-tab");
 const musicBrowser = document.getElementById("music-browser");
+const albumsTab = document.getElementById("albums-tab");
 
 async function loadArtists() {
     if (!musicBrowser) return;
@@ -189,16 +190,23 @@ async function loadArtists() {
     }
 }
 
-async function loadTracks(artist, album) {
+async function loadTracks(artist, album, source = "artists", directory = null) {
     if (!musicBrowser) return;
 
     musicBrowser.textContent = `Loading tracks for ${album}...`;
 
     try {
         const body = new URLSearchParams();
-        body.append("action", "list_tracks");
-        body.append("artist", artist);
-        body.append("album", album);
+
+        if (directory !== null) {
+            body.append("action", "list_compilation_tracks");
+            body.append("album", album);
+            body.append("directory", directory);
+        } else {
+            body.append("action", "list_tracks");
+            body.append("artist", artist);
+            body.append("album", album);
+        }     
 
         const response = await fetch(apiBase + "player.php", {
             method: "POST",
@@ -222,7 +230,13 @@ async function loadTracks(artist, album) {
 
         const backButton = document.createElement("button");
         backButton.textContent = "← Back to Albums";
-        backButton.addEventListener("click", () => loadAlbums(artist));
+        backButton.addEventListener("click", () => {
+            if (source === "albums") {
+                loadAllAlbums();
+            } else {
+                loadAlbums(artist);
+            }
+        });
         musicBrowser.appendChild(backButton);
 
         const playAlbumButton = document.createElement("button");
@@ -238,6 +252,9 @@ async function loadTracks(artist, album) {
                 body.append("artist", artist);
                 body.append("album", album);
 
+                if (directory !== null) {
+                    body.append("directory", directory);
+                }
                 const response = await fetch(apiBase + "player.php", {
                     method: "POST",
                     headers: {
@@ -276,6 +293,10 @@ async function loadTracks(artist, album) {
                 body.append("action", "add_album");
                 body.append("artist", artist);
                 body.append("album", album);
+
+                if (directory !== null) {
+                    body.append("directory", directory);
+                }
 
                 const response = await fetch(apiBase + "player.php", {
                     method: "POST",
@@ -460,9 +481,75 @@ async function loadAlbums(artist) {
     }
 }
 
-if (artistsTab) {
-    artistsTab.addEventListener("click", loadArtists);
-}
+    if (artistsTab) {
+        artistsTab.addEventListener("click", loadArtists);
+    }
+
+    // Music Library — All Albums Browser
+    async function loadAllAlbums() {
+        if (!musicBrowser) return;
+
+        musicBrowser.textContent = "Loading albums...";
+
+        try {
+            const body = new URLSearchParams();
+            body.append("action", "list_all_albums");
+
+            const response = await fetch(apiBase + "player.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body
+            });
+
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+
+            const data = await response.json();
+
+            if (!data.success || !Array.isArray(data.albums)) {
+                throw new Error("Invalid album response");
+            }
+
+            musicBrowser.replaceChildren();
+
+        data.albums.forEach(item => {
+            const row = document.createElement("div");
+            row.className = "track";
+            row.textContent = item.album + " — " + item.artist;
+            row.style.cursor = "pointer";
+
+            row.addEventListener("click", () => {
+                if (item.compilation === true) {
+                    loadTracks(
+                        item.artist,
+                        item.album,
+                        "albums",
+                        item.directory
+                    );
+                } else {
+                    loadTracks(item.artist, item.album, "albums");
+                }
+            });
+            
+            musicBrowser.appendChild(row);
+        });         
+
+            if (data.albums.length === 0) {
+                musicBrowser.textContent = "No albums found.";
+            }
+
+        } catch (error) {
+            console.error("Cassette Albums Browser Error:", error);
+            musicBrowser.textContent = "Unable to load albums.";
+        }
+    }
+
+    if (albumsTab) {
+        albumsTab.addEventListener("click", loadAllAlbums);
+    }
 
     if (!previewMode) {
         refreshStatus();

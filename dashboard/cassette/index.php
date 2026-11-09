@@ -88,9 +88,9 @@
             <h2>Music Library</h2>
 
             <nav class="music-tabs">
-                <button>Folders</button><button id="folders-tab" type="button">Folders</button>
+                <button id="folders-tab" type="button">Folders</button>
                 <button id="artists-tab" type="button">Artists</button>
-                <button>Albums</button>
+                <button id="albums-tab" type="button">Albums</button>
                 <button>Songs</button>
             </nav>
         </div>

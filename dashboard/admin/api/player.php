@@ -29,7 +29,9 @@ switch ($action) {
     case "delete_saved_playlist":
     case "list_artists":
     case "list_albums":
+    case "list_all_albums":
     case "list_tracks":
+    case "list_compilation_tracks":
     case "list_directory":
     case "add_track":
     case "add_album":
@@ -75,6 +77,10 @@ switch ($action) {
             $requestData["artist"] = $_POST["artist"] ?? "";
             $requestData["album"] = $_POST["album"] ?? "";
         }
+        if ($action === "list_compilation_tracks") {
+            $requestData["album"] = $_POST["album"] ?? "";
+            $requestData["directory"] = $_POST["directory"] ?? "";
+        }
         if ($action === "list_directory") {
            $requestData["path"] = $_POST["path"] ?? "";
         }
@@ -87,10 +93,12 @@ switch ($action) {
         if ($action === "add_album") {
             $requestData["artist"] = $_POST["artist"] ?? "";
             $requestData["album"] = $_POST["album"] ?? "";
+            $requestData["directory"] = $_POST["directory"] ?? "";
         }
         if ($action === "play_album") {
             $requestData["artist"] = $_POST["artist"] ?? "";
             $requestData["album"] = $_POST["album"] ?? "";
+            $requestData["directory"] = $_POST["directory"] ?? "";
         }
         if ($action === "volume") {
             $requestData["value"] = max(0, min(100, intval($value)));
@@ -189,7 +197,25 @@ switch ($action) {
             exit;
         }
 
+        if ($action === "list_all_albums") {
+            echo json_encode([
+                "success" => true,
+                "action" => $action,
+                "albums" => $mcplayerResponse['albums'] ?? []
+            ]);
+            exit;
+        }
+
         if ($action === "list_tracks") {
+            echo json_encode([
+                "success" => true,
+                "action" => $action,
+                "tracks" => $mcplayerResponse['tracks'] ?? []
+            ]);
+            exit;
+        }
+
+        if ($action === "list_compilation_tracks") {
             echo json_encode([
                 "success" => true,
                 "action" => $action,

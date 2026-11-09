@@ -41,7 +41,9 @@ class PlayerControlServer:
             "move_index",
             "list_artists",
             "list_albums",
+            "list_all_albums",
             "list_tracks",
+            "list_compilation_tracks",
             "list_directory",
             "list_saved_playlists",
             "load_saved_playlist",
@@ -75,6 +77,12 @@ class PlayerControlServer:
                     "action": action,
                     "artists": mpd.list_album_artists(),
                 }
+            if action == "list_all_albums":
+                return {
+                    "ok": True,
+                    "action": action,
+                    "albums": mpd.list_all_albums(),
+                }            
             if action == "list_albums":
                 album_artist = str(request.get("artist", ""))
                 return {
@@ -96,6 +104,26 @@ class PlayerControlServer:
                         album,
                     ),
                 }
+            if action == "list_compilation_tracks":
+                album = str(request.get("album", ""))
+                directory = str(request.get("directory", ""))
+
+                if not album or not directory:
+                    return {
+                        "ok": False,
+                        "error": "Album and directory are required",
+                    }
+
+                return {
+                    "ok": True,
+                    "action": action,
+                    "album": album,
+                    "directory": directory,
+                    "tracks": mpd.list_compilation_tracks(
+                        album,
+                        directory,
+                    ),
+                }            
             if action == "list_directory":
                 path = str(request.get("path", ""))
                 return {
@@ -167,16 +195,23 @@ class PlayerControlServer:
             elif action == "add_album":
                 album_artist = str(request.get("artist", ""))
                 album = str(request.get("album", ""))
+                directory = str(request.get("directory", ""))
+
                 mpd.add_album(
                     album_artist,
                     album,
+                    directory,
                 )
+
             elif action == "play_album":
                 album_artist = str(request.get("artist", ""))
                 album = str(request.get("album", ""))
+                directory = str(request.get("directory", ""))
+
                 mpd.play_album(
                     album_artist,
                     album,
+                    directory,
                 )
 
             status = mpd.get_status()
