@@ -284,7 +284,7 @@ class McPlayerMPDClient:
                         "compilation": True,
                     }
             else:
-                artist = track.get("albumartist", "")
+                artist = track.get("albumartist") or track.get("artist") or ""
                 regular_groups.add((album, artist))
 
         albums = [
