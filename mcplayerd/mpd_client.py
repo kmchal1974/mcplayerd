@@ -1,5 +1,7 @@
 """MPD connection support for McPlayerD."""
 
+from collections import Counter
+
 from mpd import MPDClient
 
 
@@ -262,8 +264,10 @@ class McPlayerMPDClient:
 
     def list_all_albums(self) -> list[dict]:
         """Return regular albums and grouped compilation albums."""
-        regular_groups = set()
+        regular_groups = {}
         compilation_groups = {}
+        regular_album_artists = {}
+        regular_track_artists = {}
 
         for track in self.client.listallinfo():
             path = track.get("file", "")
@@ -283,18 +287,43 @@ class McPlayerMPDClient:
                         "directory": directory,
                         "compilation": True,
                     }
-            else:
-                artist = track.get("albumartist") or track.get("artist") or ""
-                regular_groups.add((album, artist))
 
-        albums = [
-            {
-                "album": album,
-                "artist": artist,
-                "compilation": False,
-            }
-            for album, artist in regular_groups
-        ]
+            else:
+                directory = path.rsplit("/", 1)[0] if "/" in path else ""
+                artist = track.get("albumartist") or track.get("artist") or ""
+
+                key = (album, directory)
+
+                if key not in regular_album_artists:
+                    regular_album_artists[key] = Counter()
+                    regular_track_artists[key] = Counter()
+
+                if track.get("albumartist"):
+                    regular_album_artists[key][track["albumartist"]] += 1
+
+                if track.get("artist"):
+                    regular_track_artists[key][track["artist"]] += 1
+
+                if key not in regular_groups:
+                    regular_groups[key] = {
+                        "album": album,
+                        "artist": artist,
+                        "directory": directory,
+                        "compilation": False,
+                    }
+
+        for key, entry in regular_groups.items():
+            album_artists = regular_album_artists[key]
+            track_artists = regular_track_artists[key]
+
+            if album_artists:
+                entry["artist"] = album_artists.most_common(1)[0][0]
+            elif track_artists:
+                entry["artist"] = track_artists.most_common(1)[0][0]
+            else:
+                entry["artist"] = "Unknown Artist"
+
+        albums = list(regular_groups.values())
 
         albums.extend(compilation_groups.values())
 

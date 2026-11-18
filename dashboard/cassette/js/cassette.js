@@ -206,7 +206,7 @@ async function loadTracks(artist, album, source = "artists", directory = null) {
             body.append("action", "list_tracks");
             body.append("artist", artist);
             body.append("album", album);
-        }     
+        }
 
         const response = await fetch(apiBase + "player.php", {
             method: "POST",
@@ -522,20 +522,16 @@ async function loadAlbums(artist) {
             row.style.cursor = "pointer";
 
             row.addEventListener("click", () => {
-                if (item.compilation === true) {
-                    loadTracks(
-                        item.artist,
-                        item.album,
-                        "albums",
-                        item.directory
-                    );
-                } else {
-                    loadTracks(item.artist, item.album, "albums");
-                }
+                loadTracks(
+                    item.artist,
+                    item.album,
+                    "albums",
+                    item.directory || null
+                );
             });
-            
+
             musicBrowser.appendChild(row);
-        });         
+        });
 
             if (data.albums.length === 0) {
                 musicBrowser.textContent = "No albums found.";
